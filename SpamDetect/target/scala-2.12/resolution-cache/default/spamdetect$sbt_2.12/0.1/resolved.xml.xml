@@ -4,7 +4,7 @@
 		module="spamdetect$sbt_2.12"
 		revision="0.1"
 		status="integration"
-		publication="20181016164832"
+		publication="20181016165741"
 	/>
 	<configurations>
 		<conf name="compile" visibility="public" description=""/>
