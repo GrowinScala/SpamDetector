@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="HydraSettings">
-    <option name="hydraStorePath" value="C:\Users\Rui Valente\Desktop\Scala\SpamDetector\SpamDetect\.hydra\idea" />
+    <option name="hydraStorePath" value="C:\Users\PedroLuis\Desktop\Scala\SpamDetect\.hydra\idea" />
     <option name="noOfCores" value="2" />
-    <option name="projectRoot" value="C:\Users\Rui Valente\Desktop\Scala\SpamDetector\SpamDetect" />
+    <option name="projectRoot" value="C:\Users\PedroLuis\Desktop\Scala\SpamDetect" />
     <option name="sourcePartitioner" value="auto" />
   </component>
 </project>
