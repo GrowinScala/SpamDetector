@@ -1,22 +1,30 @@
-import java.io.File
+import scala.io.Source
 
-object ProcessData {
+object ProcessData{
 
-  private[data] def filePath = {
-    val resource = this.getClass.getClassLoader.getResource("spamdata/spam.dat")
-    if (resource == null) sys.error("Please download the dataset as explained in the assignment instructions")
-    new File(resource.toURI).getPath
+  def parse(line: String): List[(Int,String)] = {
+
+  val index = line.indexOf(",")
+  //if (index<0) println(line)
+  val classification = line.substring(0,index) match {
+    case "ham" => 0
+    case "spam" => 1
   }
-  private[data] def parse(line: String): List[(Int,String)] = {
+  val text  = line.takeRight(line.length-index)
+  List((classification, text))
 
-    val index = line.indexOf(",")
-    val classification = line.substring(0,index) match {
-      case "ham" => 0
-      case "spam" => 1
+  }
+
+
+  def parseA(fileName : String): List[(Int,String)] ={
+    val bufferedSource = Source.fromFile(fileName).getLines().toList
+    def Acc(acc: List[String]): List[(Int,String)] = {
+      if (acc.tail.isEmpty) parse(acc.head)
+      else parse(acc.head) ::: Acc(acc.tail)
     }
-    val text  = line.takeRight(line.length-index)
-    List((classification, text))
-
+    Acc(bufferedSource)
   }
+
+
 
 }
