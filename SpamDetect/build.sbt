@@ -17,7 +17,6 @@ libraryDependencies  ++= Seq(
   // The visualization library is distributed separately as well.
   // It depends on LGPL code
   "org.scalanlp" %% "breeze-viz" % "0.13.2",
-  "org.knowm.xchart" % "xchart" % "3.5.2" exclude("de.erichseifert.vectorgraphics2d", "VectorGraphics2D") withSources()
 )
 
 
