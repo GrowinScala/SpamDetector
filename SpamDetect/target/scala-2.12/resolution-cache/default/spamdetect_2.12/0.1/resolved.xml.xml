@@ -4,7 +4,7 @@
 		module="spamdetect_2.12"
 		revision="0.1"
 		status="integration"
-		publication="20181017140827"
+		publication="20181018160323"
 	>
 		<description>
 		SpamDetect
@@ -35,5 +35,10 @@
 		<dependency org="org.scalanlp" name="breeze_2.12" rev="0.13.2" conf="compile->default(compile)"/>
 		<dependency org="org.scalanlp" name="breeze-natives_2.12" rev="0.13.2" conf="compile->default(compile)"/>
 		<dependency org="org.scalanlp" name="breeze-viz_2.12" rev="0.13.2" conf="compile->default(compile)"/>
+		<dependency org="org.knowm.xchart" name="xchart" rev="3.5.2" conf="compile->default(compile)">
+			<artifact name="xchart" type="src" ext="jar" conf="*" e:classifier="sources"/>
+			<artifact name="xchart" type="jar" ext="jar" conf="*"/>
+			<exclude org="de.erichseifert.vectorgraphics2d" module="VectorGraphics2D" name="*" type="*" ext="*" conf="" matcher="exact"/>
+		</dependency>
 	</dependencies>
 </ivy-module>

@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="Encoding">
-    <file url="file://$PROJECT_DIR$/src/main/resources/spamdata/spam.csv" charset="UTF-16" />
-    <file url="file://$PROJECT_DIR$/src/main/resources/spamdata/spam.dat" charset="windows-1252" />
-    <file url="file://$PROJECT_DIR$/src/main/resources/spamdata/spam.dat" charset="ISO-8859-1" />
-    <file url="file://$PROJECT_DIR$/src/main/resources/spamdata/spam.txt.dat" charset="ISO-8859-1" />
+  <component name="Encoding" defaultCharsetForPropertiesFiles="NO_ENCODING">
+    <file url="file://$PROJECT_DIR$/src/main/resources/spamdata/spam.dat" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/spamdata/testset.dat" charset="UTF-8" />
+    <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>
