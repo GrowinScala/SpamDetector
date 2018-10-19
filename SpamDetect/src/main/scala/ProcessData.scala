@@ -82,24 +82,35 @@ object ProcessData{
 
   //Delete all the ponctuation presented in every text message (apostrophe and hyphens are maintained)
   def takePonctuation(targetSet:List[(Int,String)]):List[(Int,String)]=
-    targetSet.map(x=> (x._1,x._2.replaceAll("[\\`\\*{}\\[\\]()>#\\-+:\\~%\\^&@<\\?;,\"!\\$=\\_|\\.]", " ")))
+    targetSet.map(x=> (x._1,x._2.replaceAll("[\\`\\*{}\\[\\]()>#\\+:\\~%\\^&@<\\?;,\"!\\$=\\_|\\.]", " ")))
 
   //Separates each sentence by the words that compose it in different strings
   def segmentationString(targetMessage:String): List[String] = {
     targetMessage.split(" ").toList
   }
 
-
+  //Remove all words that match with the words contained in stopWords list
   def takeStopWords(stopWords: List[String], targetSet:List[(Int,String)]):List[(Int,String)]={
     targetSet.map(x=> (x._1,segmentationString(x._2).filterNot(stopWords.contains(_)).mkString(" ")))//.filter(stopWordsList))
   }
 
+  //Turn all upper characters to lower
   def uppertoLower(targetSet:List[(Int,String)]):List[(Int,String)]={
     targetSet.map(x=> (x._1,x._2.toLowerCase()))
   }
 
-  //
+  //Replace: digits of mobile numbers -> "phone_number"
   def replaceOverall(targetSet:List[(Int,String)]):List[(Int,String)]={
-    targetSet.map(x=> (x._1,x._2.replaceAll("\\d{5,}", "phone_number")))
+    targetSet.map(x => (x._1,x._2
+      .replaceAll("\\w*www.\\w*", " *website* ")
+      .replaceAll("\\d{5,}", " *phonenumber* ")
+      .replaceAll("\\w{1,4}\\/\\w{1,4}"," *per* ")
+      .replaceAll("(\\d+\\W*pound\\w*)|(\\d+\\W*dollar\\w*)|(\\d+\\W*cash\\w*)|(\\d+\\W*euro\\w*)|(\\d+\\W*p\\W)", " *money* ")
+      .replaceAll("(?:(?:31(\\/|-|\\.)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(\\/|-|\\.)" +
+        "(?:0?[1,3-9]|1[0-2])\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})|(?:29(\\/|-|\\.)0?2\\3(?:(?:" +
+        "(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))" +
+        "|(?:0?[1-9]|1\\d|2[0-8])(\\/|-|\\.)(?:(?:0?[1-9])|(?:1[0-2]))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{2})", " *dates* ")
+      .replaceAll("\\d{1,4}", " *numbers* ")
+    ))
   }
 }
