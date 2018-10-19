@@ -7,20 +7,8 @@
 		revision="0.1"
 		conf="test"
 		confs="compile, runtime, test, provided, optional, compile-internal, runtime-internal, test-internal, plugin, pom, scala-tool"
-		date="20181018160323"/>
+		date="20181018173247"/>
 	<dependencies>
-		<module organisation="org.knowm.xchart" name="xchart">
-			<revision name="3.5.2" status="release" pubdate="20180503112259" resolver="public" artresolver="public" homepage="" downloaded="true" searched="true" default="false" conf="default, compile, runtime, default(compile), master" position="42">
-				<license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt"/>
-				<metadata-artifact status="successful" details="" size="679" time="387" location="C:\Users\Rui Valente\.ivy2\cache\org.knowm.xchart\xchart\ivy-3.5.2.xml" searched="true" original-local-location="C:\Users\Rui Valente\.ivy2\cache\org.knowm.xchart\xchart\ivy-3.5.2.xml.original" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/org/knowm/xchart/xchart/3.5.2/xchart-3.5.2.pom"/>
-				<caller organisation="default" name="spamdetect_2.12" conf="test, compile, runtime" rev="3.5.2" rev-constraint-default="3.5.2" rev-constraint-dynamic="3.5.2" callerrev="0.1"/>
-				<artifacts>
-					<artifact name="xchart" type="jar" ext="jar" status="successful" details="" size="265461" time="1132" location="C:\Users\Rui Valente\.ivy2\cache\org.knowm.xchart\xchart\jars\xchart-3.5.2.jar">
-						<origin-location is-local="false" location="https://repo1.maven.org/maven2/org/knowm/xchart/xchart/3.5.2/xchart-3.5.2.jar"/>
-					</artifact>
-				</artifacts>
-			</revision>
-		</module>
 		<module organisation="org.scalanlp" name="breeze-viz_2.12">
 			<revision name="0.13.2" status="release" pubdate="20170801050452" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://scalanlp.org/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="33">
 				<license name="Apache 2" url="http://www.apache.org/licenses/LICENSE-2.0.html"/>
