@@ -13,9 +13,12 @@ val trainingSetLower = uppertoLower(trainingSet)
 
 val trainingSetPonctuation = takePonctuation(trainingSetLower)
 
-val trainingSetStopWords = takeStopWords(stopWordsList, trainingSetPonctuation)
+val trainingStemmed = applyStemmer(trainingSetPonctuation)
+
+val trainingSetStopWords = takeStopWords(stopWordsList, trainingStemmed)
 
 val trainingReplace = replaceOverall(trainingSetStopWords)
+
 
 
 

@@ -99,6 +99,10 @@ object ProcessData{
     targetSet.map(x=> (x._1,x._2.toLowerCase()))
   }
 
+  def applyStemmer(targetSet:List[(Int,String)]):List[(Int,String)]={
+    targetSet.map(x=> (x._1,segmentationString(x._2).map(y=>Stemmer.stem(y)).mkString(" ")))
+  }
+
   //Replace: digits of mobile numbers -> "phone_number"
   def replaceOverall(targetSet:List[(Int,String)]):List[(Int,String)]={
     targetSet.map(x => (x._1,x._2

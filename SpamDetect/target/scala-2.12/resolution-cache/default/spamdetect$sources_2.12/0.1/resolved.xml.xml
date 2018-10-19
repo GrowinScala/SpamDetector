@@ -4,7 +4,7 @@
 		module="spamdetect$sources_2.12"
 		revision="0.1"
 		status="integration"
-		publication="20181018173251"
+		publication="20181019092350"
 	/>
 	<configurations>
 		<conf name="default" visibility="public" description=""/>

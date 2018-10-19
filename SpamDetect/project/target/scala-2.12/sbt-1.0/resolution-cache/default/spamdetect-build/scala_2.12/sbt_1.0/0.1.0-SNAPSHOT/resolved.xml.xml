@@ -4,7 +4,7 @@
 		module="spamdetect-build"
 		revision="0.1.0-SNAPSHOT"
 		status="integration"
-		publication="20181018155731"
+		publication="20181019092331"
 		e:sbtVersion="1.0" e:scalaVersion="2.12"
 	>
 		<description>
