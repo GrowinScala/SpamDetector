@@ -11,7 +11,7 @@ lazy val stopWordsList = readFromFile("src\\main\\resources\\spamdata\\stopWords
 //val trainingSetcounted = countLength(trainingSet)
 val trainingSetLower = uppertoLower(trainingSet)
 
-val trainingSetPonctuation = takePonctuation(trainingSetLower)
+val trainingSetPonctuation = takePunctuation(trainingSetLower)
 
 val trainingStemmed = applyStemmer(trainingSetPonctuation)
 
