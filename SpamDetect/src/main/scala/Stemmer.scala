@@ -145,7 +145,7 @@ object Stemmer {
     private val singleLetter = StemBuilder(_ trimSuffix 1)
 
     private class Word(string: String) {
-      val word = string.toLowerCase
+      val word = string
 
       def trimSuffix(suffixLength: Int) = new Word(word substring (0, word.length - suffixLength))
 

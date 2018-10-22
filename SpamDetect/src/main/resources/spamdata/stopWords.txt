@@ -247,7 +247,8 @@ i've
 j
 just
 k
-keep	keeps
+keep
+keeps
 kept
 kg
 km
@@ -255,6 +256,7 @@ know
 known
 knows
 l
+ll
 largely
 last
 lately
@@ -483,6 +485,7 @@ specifically
 specified
 specify
 specifying
+st
 still
 stop
 strongly
@@ -493,7 +496,8 @@ such
 sufficiently
 suggest
 sup
-sure	t
+sure
+t
 take
 taken
 taking
@@ -587,6 +591,7 @@ v
 value
 various
 've
+ve
 very
 via
 viz
@@ -648,7 +653,6 @@ words
 world
 would
 wouldnt
-www
 x
 y
 yes
