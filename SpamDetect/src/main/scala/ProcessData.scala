@@ -110,19 +110,20 @@ object ProcessData{
   def replaceOverall(targetSet:List[(Int,String)]):List[(Int,String)]={
       targetSet.map(x => (x._1,x._2
         .replaceAll("\\S*www.\\S*", " *website* ")
-        .replaceAll("(:\\W+\\b)|(:\\W+$)","*smile*")
+        .replaceAll("(:\\W+\\b)|(:\\W+$)"," *smile* ")
+        .replaceAll("\\.{3}"," *tripledot* ")
         .replaceAll("\\d{5,}", " *phonenumber* ")
         .replaceAll("\\w{1,4}\\/\\w{1,4}"," *per* ")
+        .replaceAll("\\S*((jan)|(january)|(feb)|(february)|(mar)|(march)|(apr)|(april)|(may)|(jun)|(june)|(jul)|(july)" +
+          "|(aug)|(august)|(sep)|(september)|(oct)|(october)|(nov)|(november)|(dec)|(december))\\S*"," *month* ")
+        .replaceAll("\\S*((mon)|(monday)|(tue)|(tuesday)|(wed)|(wednesday)|(thu)|(thursday)|(friday)|(saturday)|(sunday))\\S*"," *weekday* ")
         .replaceAll("(\\d+\\W*pound\\w*)|(\\d+\\W*dollar\\w*)|(\\d+\\W*cash\\w*)|(\\d+\\W*euro\\w*)|(\\d+\\W*p\\W)", " *money* ")
         .replaceAll("(?:(?:31(\\/|-|\\.)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(\\/|-|\\.)" +
           "(?:0?[1,3-9]|1[0-2])\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})|(?:29(\\/|-|\\.)0?2\\3(?:(?:" +
           "(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))" +
           "|(?:0?[1-9]|1\\d|2[0-8])(\\/|-|\\.)(?:(?:0?[1-9])|(?:1[0-2]))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{2})", " *dates* ")
         .replaceAll("\\d{1,4}", " *numbers* ")
-        .replaceAll("(jan)|(january)|(feb)|(february)|(mar)|(march)|(apr)|(april)|(may)|(jun)|(june)|(jul)|(july)" +
-          "|(aug)|(august)|(sep)|(september)|(oct)|(october)|(nov)|(november)|(dec)|(december)","*month*")
-        .replaceAll("(mon)|(monday)|(tue)|(tuesday)|(wed)|(wednesday)|(thu)|(thursday)|(friday)|(saturday)|(sunday)","*weekday*")
-        .replaceAll("\\.{3}","*tripledot*")
+
       )
     )
   }
