@@ -1,7 +1,7 @@
 import java.io.{BufferedWriter, File, FileWriter}
 
+import breeze.linalg.{DenseMatrix, DenseVector}
 import shapeless._
-
 import sun.nio.cs.ISO_8859_2
 
 import scala.io.Source
@@ -86,8 +86,8 @@ object ProcessData{
     targetSet.map(x=> (x._1,x._2.replaceAll("\\p{Punct}", " ")))
 
   //Separates each sentence by the words that compose it in different strings
-  def tokenization(targetMessage:String): Set[String] = {
-    targetMessage.split(" ").toSet
+  def tokenization(targetMessage:String): List[String] = {
+    targetMessage.split(" ").toList
   }
 
   //Remove all words that match with the words contained in stopWords list
@@ -109,7 +109,7 @@ object ProcessData{
   //ex: Replace 910000000(digits of mobile number) -> "*phonenumber*"
   def replaceOverall(targetSet:List[(Int,String)]):List[(Int,String)]={
       targetSet.map(x => (x._1,x._2
-        .replaceAll("(\\S*www.\\S*)|(\\S*.com\\S*)", " WEBSITE ")
+        .replaceAll("(\\S*www\\.\\S*)|(\\S*\\.com\\S*)", " WEBSITE ")
         .replaceAll("(:\\p{Punct}+)|(:\\w\\s+)"," SMILE ")
         .replaceAll("\\.{3}"," TRIPLEDOT ")
         .replaceAll("\\d{5,}", " PHONENUMBER ")
@@ -127,4 +127,31 @@ object ProcessData{
       )
     )
   }
+
+  //Make term frequency matrix from target set
+  def makeTFMatrix(targetSet : List[(Int,String)]): DenseMatrix[Float] = {
+
+    //List of sentences from target set, without empty strings
+    val listOfSentences = targetSet.map(x=> tokenization(x._2).filterNot(x=> x.equals("")))
+
+    //List of words of every sentence without repetitions, without empty strings
+    val listOfWords= targetSet.foldLeft(List(""))((s,x)=> tokenization(x._2) ++ s ).distinct.sorted.filterNot(x=> x.equals(""))
+
+    //Converted words into a map pointing to 0
+    val mappedLisfOfWords : Map[String,Float]= listOfWords.map(x=> x->0f).toMap
+
+    //Every words is atributted the value of converted sentence into a map
+    // Where each vector maps the proportion of the word presented in a specific sentence(Term Frequency)
+    val convertedVectorList : List[DenseVector[Float]] = listOfSentences.map(x=>
+                  DenseVector((mappedLisfOfWords ++ x.foldLeft(Map.empty[String, Float]){
+                      (count, word) => count + (word -> (count.getOrElse(word, 0f) + (1f/x.length)))
+                    }).values.toArray))
+
+    //Restructure a list of vectors into a matrix
+    val matrix = DenseMatrix(convertedVectorList:_*)
+
+    //transpose matrix
+    matrix.t
+  }
+
 }

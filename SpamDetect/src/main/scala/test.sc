@@ -18,6 +18,8 @@ val trainingSetPonctuation = takePunctuation(trainingReplace)
 val trainingStemmed = trainingSetPonctuation.map(x=> x._1).zip(applyStemmer(trainingSetPonctuation.map(x=> x._2)))
 val trainingSetStopWords = takeStopWords(stemmedStopWords, trainingStemmed)
 
+val matrix = makeTFMatrix(trainingSetStopWords)
+
 
 saveToFile("src\\main\\resources\\spamdata\\output.dat", trainingSetStopWords)
 
