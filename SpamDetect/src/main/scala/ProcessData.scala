@@ -1,12 +1,15 @@
 import java.io.{BufferedWriter, File, FileWriter}
 
-import breeze.linalg.{DenseMatrix, DenseVector}
-import shapeless._
+import breeze.linalg
+import breeze.linalg._
+import breeze.linalg.support.CanSlice2
+import breeze.numerics._
+
 import sun.nio.cs.ISO_8859_2
 
 import scala.io.Source
 
-object ProcessData{
+ object ProcessData {
 
   // Saves a List of integers to target path
   /*def saveToFileInt(pathSet: String, targetSet: List[Int])={
@@ -19,13 +22,18 @@ object ProcessData{
   }*/
 
   // Saves a List of something to target path
-  def saveToFile[T](pathSet: String, targetSet: List[T]): Unit ={
-    val file = new File(pathSet)
+  def saveToFile[T](pathName: String, targetSet: List[T]): Unit ={
+    val file = new File(pathName)
     val bw = new BufferedWriter(new FileWriter(file))
       for (line <- targetSet){
       bw.write(line + "\n")
     }
     bw.close()
+  }
+
+  // Saves a List of something to target path
+  def saveToFile(pathName: String, matrix: DenseMatrix[Double]): Unit ={
+    breeze.linalg.csvwrite(new File(pathName), matrix, separator = ' ')
   }
 
   //This function was used to split the spam.dat into three different groups, then save those groups into 3 different sets:
@@ -62,8 +70,13 @@ object ProcessData{
   }
 
   //Reads from target path name, return a list of strings
-  def readFromFile(fileName: String): List[String]={
-    Source.fromFile(fileName).getLines().toList
+  def readListFromFile(pathName: String): List[String]={
+    Source.fromFile(pathName).getLines().toList
+  }
+
+  //Reads from target path name, return a list of strings
+  def readMatrixFromFile(pathName: String): DenseMatrix[Double]={
+    breeze.linalg.csvread(new File(pathName), separator = ' ')
   }
 
   // Separates all lines from target file into classification and message
@@ -129,7 +142,7 @@ object ProcessData{
   }
 
   //Make term frequency matrix from target set
-  def makeTFMatrix(targetSet : List[(Int,String)]): DenseMatrix[Float] = {
+  def makeTFMatrix(targetSet : List[(Int,String)]): DenseMatrix[Double] = {
 
     //List of sentences from target set, without empty strings
     val listOfSentences = targetSet.map(x=> tokenization(x._2).filterNot(x=> x.equals("")))
@@ -138,13 +151,13 @@ object ProcessData{
     val listOfWords= targetSet.foldLeft(List(""))((s,x)=> tokenization(x._2) ++ s ).distinct.sorted.filterNot(x=> x.equals(""))
 
     //Converted words into a map pointing to 0
-    val mappedLisfOfWords : Map[String,Float]= listOfWords.map(x=> x->0f).toMap
+    val mappedLisfOfWords : Map[String,Double]= listOfWords.map(x=> x->0.0).toMap
 
     //Every words is atributted the value of converted sentence into a map
     // Where each vector maps the proportion of the word presented in a specific sentence(Term Frequency)
-    val convertedVectorList : List[DenseVector[Float]] = listOfSentences.map(x=>
-                  DenseVector((mappedLisfOfWords ++ x.foldLeft(Map.empty[String, Float]){
-                      (count, word) => count + (word -> (count.getOrElse(word, 0f) + (1f/x.length)))
+    val convertedVectorList : List[DenseVector[Double]] = listOfSentences.map(x=>
+                  DenseVector((mappedLisfOfWords ++ x.foldLeft(Map.empty[String, Double]){
+                      (count, word) => count + (word -> (count.getOrElse(word, 0.0) + (1.0/x.length)))
                     }).values.toArray))
 
     //Restructure a list of vectors into a matrix
@@ -152,6 +165,20 @@ object ProcessData{
 
     //transpose matrix
     matrix.t
+  }
+
+   //Makes tf * idf matrix
+  def makeTFIDFMatrix(TFMatrix: DenseMatrix[Double]) :DenseMatrix[Double]={
+
+    val TFMatrixCols = TFMatrix.cols
+    //Maps each row of a matrix to is value times log( 1+ total number of columns/ number of documents that contains the term at least once)
+    val TFIDFMatrix = TFMatrix(*,::).map(row=> {
+    //val countRow = row.foldLeft(0.0)((count, element) => count + (if (element!=0) 1.0 else 0.0))
+    val countRow = row.findAll(x => x!=0.0).length
+      row.map(x=> if(x!= 0.0) x* log1p(TFMatrixCols.toDouble/countRow) else x)
+    })
+
+    TFIDFMatrix
   }
 
 }
