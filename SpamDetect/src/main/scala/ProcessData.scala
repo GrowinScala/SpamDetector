@@ -4,13 +4,10 @@ import breeze.linalg
 import breeze.linalg._
 import breeze.linalg.support.CanSlice2
 import breeze.numerics._
-
 import sun.nio.cs.ISO_8859_2
-
 import scala.io.Source
 
  object ProcessData {
-
   // Saves a List of integers to target path
   /*def saveToFileInt(pathSet: String, targetSet: List[Int])={
     val file = new File(pathSet)
@@ -40,7 +37,7 @@ import scala.io.Source
   //1 - Training Set, containing 60% of the data
   //2 - Cross-Validation Set, containing 20% of the data
   //3 - Test Set, containing 20% of the data
-  def splitA(fileName : String) ={
+  def splitA(fileName : String):Unit ={
     val bSource = Source.fromFile(fileName).getLines().toList
     val bShuffle = scala.util.Random.shuffle(bSource)
     //Dividing the data into 10 parts in order to be easier to split it into the different sets
@@ -80,7 +77,7 @@ import scala.io.Source
   }
 
   // Separates all lines from target file into classification and message
-  def parseA(fileName : String, targetSet: List[String]): List[(Int,String)] ={
+  def parseA(targetSet: List[String]): List[(Int,String)] ={
     val bufferedSource = targetSet
     def Acc(acc: List[String]): List[(Int,String)] = {
       if (acc.tail.isEmpty) parse(acc.head)
@@ -136,10 +133,18 @@ import scala.io.Source
           "(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))" +
           "|(?:0?[1-9]|1\\d|2[0-8])(\\/|-|\\.)(?:(?:0?[1-9])|(?:1[0-2]))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{2})", " DATE ")
         .replaceAll("\\d{1,4}", " NUMBER ")
-
       )
     )
   }
+
+   def listOfWordsF(targetSet : List[(Int,String)]): List[String]= {
+     //List of sentences from target set, without empty strings
+     val listOfSentences = targetSet.map(x=> tokenization(x._2).filterNot(x=> x.equals("")))
+     //List of words of every sentence without repetitions, without empty strings
+     val listOfWords= targetSet.foldLeft(List(""))((s,x)=> tokenization(x._2) ++ s ).distinct.sorted.filterNot(x=> x.equals(""))
+     listOfWords
+   }
+
 
   //Make term frequency matrix from target set
   def makeTFMatrix(targetSet : List[(Int,String)]): DenseMatrix[Double] = {
@@ -152,14 +157,14 @@ import scala.io.Source
 
     //Converted words into a map pointing to 0
     val mappedLisfOfWords : Map[String,Double]= listOfWords.map(x=> x->0.0).toMap
+    saveToFile("src\\main\\resources\\spamdata\\listOfWords.dat", mappedLisfOfWords.keys.toList)
 
     //Every words is atributted the value of converted sentence into a map
-    // Where each vector maps the proportion of the word presented in a specific sentence(Term Frequency)
-    val convertedVectorList : List[DenseVector[Double]] = listOfSentences.map(x=>
+    // Where each vector maps the proportion of the words presented in a specific sentence(Term Frequency)
+    val convertedVectorList : List[DenseVector[Double]] = listOfSentences.map(x =>
                   DenseVector((mappedLisfOfWords ++ x.foldLeft(Map.empty[String, Double]){
-                      (count, word) => count + (word -> (count.getOrElse(word, 0.0) + (1.0/x.length)))
+                      (count, word) => count + (word -> (count.getOrElse(word, 0.0) + 1.0/x.length))
                     }).values.toArray))
-
     //Restructure a list of vectors into a matrix
     val matrix = DenseMatrix(convertedVectorList:_*)
 
@@ -180,5 +185,62 @@ import scala.io.Source
 
     TFIDFMatrix
   }
+
+   /*
+   * This method takes 2 equal length arrays of doubles
+   * It returns a double representing similarity of the 2 arrays
+   * 0.9925 would be 99.25% similar
+   * (x dot y)/||X|| ||Y||
+   */
+   def cosineSimilarity(x: Array[Double], y: Array[Double]): Double = {
+       /*
+      * Return the dot product of the 2 arrays
+      * e.g. (a[0]*b[0])+(a[1]*a[2])
+      */
+       def dotProduct(x: Array[Double], y: Array[Double]): Double = {
+         (for ((a, b) <- x zip y) yield a * b) sum
+       }
+
+       /*
+        * Return the magnitude of an array
+        * We multiply each element, sum it, then square root the result.
+        */
+       def magnitude(x: Array[Double]): Double = {
+         math.sqrt(x map (i => i * i) sum)
+       }
+       require(x.length == y.length)
+
+     val magMultiplication = magnitude(x) * magnitude(y)
+     if (magMultiplication !=0.0) dotProduct(x, y) / magMultiplication
+     else 0
+   }
+
+
+
+
+   def f1Score(cvCategories: List[Int], catPositions: List[Int]): Double = {
+     def auxScore(cvCat: List[Int], catPos: List[Int]): List[Int] = {
+       if (cvCat.tail.isEmpty)
+         cvCat.head match {
+           case 0 => if (catPos.head==0) List(0, 0, 0)
+           else List(0, 0, 1)
+           case 1 => if (catPos.head==0) List(0, 1, 0)
+           else List(1, 0, 0)
+         }
+       else
+         cvCat.head match {
+           case 0 => if (catPos.head==0) auxScore(cvCat.tail, catPos.tail)
+           else (List(0, 0, 1),auxScore(cvCat.tail, catPos.tail)).zipped.map(_ + _)
+           case 1 => if (catPos.head==0) (List(0, 1, 0),auxScore(cvCat.tail, catPos.tail)).zipped.map(_ + _)
+           else (List(1, 0, 0),auxScore(cvCat.tail, catPos.tail)).zipped.map(_+_)
+         }
+     }
+     //List(TruePositive,FalseNegative,FalsePositive)
+     val Score: List[Int] = auxScore(cvCategories, catPositions)
+     val truePos: Double = Score.head.toDouble
+     val falseNeg:Double = Score.tail.head.toDouble
+     val falsePos:Double = Score.tail.tail.head.toDouble
+     2*truePos/(2*truePos+falseNeg+falsePos)
+   }
 
 }

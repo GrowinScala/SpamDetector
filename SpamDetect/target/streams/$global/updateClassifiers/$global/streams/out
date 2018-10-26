@@ -4898,8 +4898,8 @@
 [debug] == resolving dependencies default#spamdetect$sources;0.1->jline#jline;2.14.6 [scala-tool->master]
 [debug] 	resolved ivy file produced in cache
 [debug] :: downloading artifacts ::
-[debug] 	[NOT REQUIRED] com.github.fommil.netlib#netlib-native_system-osx-x86_64;1.1!netlib-native_system-osx-x86_64.jar(src)
 [debug] 	[NOT REQUIRED] com.github.fommil.netlib#netlib-native_ref-win-i686;1.1!netlib-native_ref-win-i686.jar(src)
+[debug] 	[NOT REQUIRED] com.github.fommil.netlib#netlib-native_system-osx-x86_64;1.1!netlib-native_system-osx-x86_64.jar(src)
 [debug] 	[NOT REQUIRED] com.github.fommil.netlib#netlib-native_ref-osx-x86_64;1.1!netlib-native_ref-osx-x86_64.jar(src)
 [debug] 	[NOT REQUIRED] com.lowagie#itext;2.1.5!itext.jar(src)
 [debug] 	[NOT REQUIRED] org.scalanlp#breeze-macros_2.12;0.13.2!breeze-macros_2.12.jar(src)
@@ -4908,9 +4908,8 @@
 [debug] 	[NOT REQUIRED] junit#junit;4.8.2!junit.jar(src)
 [debug] 	[NOT REQUIRED] org.apache.commons#commons-math3;3.2!commons-math3.jar(src)
 [debug] 	[NOT REQUIRED] commons-logging#commons-logging;1.0.4!commons-logging.jar(src)
-[debug] 	[NOT REQUIRED] net.sf.opencsv#opencsv;2.3!opencsv.jar(src)
 [debug] 	[NOT REQUIRED] com.github.fommil.netlib#native_ref-java;1.1!native_ref-java.jar(src)
-[debug] 	[NOT REQUIRED] org.spire-math#spire-macros_2.12;0.13.0!spire-macros_2.12.jar(src)
+[debug] 	[NOT REQUIRED] net.sf.opencsv#opencsv;2.3!opencsv.jar(src)
 [debug] 	[NOT REQUIRED] com.github.fommil.netlib#core;1.1.2!core.jar(src)
 [debug] 	[NOT REQUIRED] com.github.fommil.netlib#netlib-native_system-linux-i686;1.1!netlib-native_system-linux-i686.jar(src)
 [debug] 	[NOT REQUIRED] com.github.fommil.netlib#netlib-native_system-win-i686;1.1!netlib-native_system-win-i686.jar(src)
@@ -4920,33 +4919,34 @@
 [debug] 	[NOT REQUIRED] org.spire-math#spire_2.12;0.13.0!spire_2.12.jar(src)
 [debug] 	[NOT REQUIRED] org.typelevel#macro-compat_2.12;1.1.1!macro-compat_2.12.jar(src)
 [debug] 	[NOT REQUIRED] org.scalanlp#breeze-viz_2.12;0.13.2!breeze-viz_2.12.jar(src)
-[debug] 	[NOT REQUIRED] com.github.fommil.netlib#netlib-native_system-linux-x86_64;1.1!netlib-native_system-linux-x86_64.jar(src)
 [debug] 	[NOT REQUIRED] jfree#jcommon;1.0.16!jcommon.jar(src)
 [debug] 	[NOT REQUIRED] org.slf4j#slf4j-api;1.7.5!slf4j-api.jar(src)
 [debug] 	[NOT REQUIRED] org.scalanlp#breeze_2.12;0.13.2!breeze_2.12.jar(src)
 [debug] 	[NOT REQUIRED] commons-io#commons-io;1.3.1!commons-io.jar(src)
+[debug] 	[NOT REQUIRED] org.scala-lang#scala-library;2.12.7!scala-library.jar(src)
 [debug] 	[NOT REQUIRED] org.scala-lang#scala-reflect;2.12.7!scala-reflect.jar(src)
 [debug] 	[NOT REQUIRED] com.github.fommil.netlib#netlib-native_ref-linux-i686;1.1!netlib-native_ref-linux-i686.jar(src)
-[debug] 	[NOT REQUIRED] org.scala-lang#scala-library;2.12.7!scala-library.jar(src)
 [debug] 	[NOT REQUIRED] com.chuusai#shapeless_2.12;2.3.2!shapeless_2.12.jar(src)
 [debug] 	[NOT REQUIRED] org.scalanlp#breeze-natives_2.12;0.13.2!breeze-natives_2.12.jar(src)
 [debug] 	[NOT REQUIRED] com.github.fommil.netlib#netlib-native_ref-linux-armhf;1.1!netlib-native_ref-linux-armhf.jar(src)
 [debug] 	[NOT REQUIRED] org.typelevel#machinist_2.12;0.6.1!machinist_2.12.jar(src)
-[debug] 	[NOT REQUIRED] com.github.fommil#jniloader;1.1!jniloader.jar(src)
 [debug] 	[NOT REQUIRED] com.github.fommil.netlib#native_system-java;1.1!native_system-java.jar(src)
+[debug] 	[NOT REQUIRED] com.github.fommil#jniloader;1.1!jniloader.jar(src)
 [debug] 	[NOT REQUIRED] org.scala-lang#scala-compiler;2.12.7!scala-compiler.jar(src)
-[debug] 	[NOT REQUIRED] jline#jline;2.14.6!jline.jar(src)
 [debug] 	[NOT REQUIRED] org.scala-lang.modules#scala-xml_2.12;1.0.6!scala-xml_2.12.jar(src)
-[debug] :: resolution report :: resolve 859ms :: artifacts dl 33ms
-[debug] 	report for default#spamdetect$sources;0.1 compile produced in C:\Users\PedroLuis\Desktop\Scala\SpamDetect\target\scala-2.12\resolution-cache\reports\default-spamdetect$sources-compile.xml
-[debug] 	report for default#spamdetect$sources;0.1 runtime produced in C:\Users\PedroLuis\Desktop\Scala\SpamDetect\target\scala-2.12\resolution-cache\reports\default-spamdetect$sources-runtime.xml
-[debug] 	report for default#spamdetect$sources;0.1 test produced in C:\Users\PedroLuis\Desktop\Scala\SpamDetect\target\scala-2.12\resolution-cache\reports\default-spamdetect$sources-test.xml
-[debug] 	report for default#spamdetect$sources;0.1 provided produced in C:\Users\PedroLuis\Desktop\Scala\SpamDetect\target\scala-2.12\resolution-cache\reports\default-spamdetect$sources-provided.xml
-[debug] 	report for default#spamdetect$sources;0.1 optional produced in C:\Users\PedroLuis\Desktop\Scala\SpamDetect\target\scala-2.12\resolution-cache\reports\default-spamdetect$sources-optional.xml
-[debug] 	report for default#spamdetect$sources;0.1 compile-internal produced in C:\Users\PedroLuis\Desktop\Scala\SpamDetect\target\scala-2.12\resolution-cache\reports\default-spamdetect$sources-compile-internal.xml
-[debug] 	report for default#spamdetect$sources;0.1 runtime-internal produced in C:\Users\PedroLuis\Desktop\Scala\SpamDetect\target\scala-2.12\resolution-cache\reports\default-spamdetect$sources-runtime-internal.xml
-[debug] 	report for default#spamdetect$sources;0.1 test-internal produced in C:\Users\PedroLuis\Desktop\Scala\SpamDetect\target\scala-2.12\resolution-cache\reports\default-spamdetect$sources-test-internal.xml
-[debug] 	report for default#spamdetect$sources;0.1 plugin produced in C:\Users\PedroLuis\Desktop\Scala\SpamDetect\target\scala-2.12\resolution-cache\reports\default-spamdetect$sources-plugin.xml
-[debug] 	report for default#spamdetect$sources;0.1 pom produced in C:\Users\PedroLuis\Desktop\Scala\SpamDetect\target\scala-2.12\resolution-cache\reports\default-spamdetect$sources-pom.xml
-[debug] 	report for default#spamdetect$sources;0.1 scala-tool produced in C:\Users\PedroLuis\Desktop\Scala\SpamDetect\target\scala-2.12\resolution-cache\reports\default-spamdetect$sources-scala-tool.xml
-[debug] 	resolve done (859ms resolve - 33ms download)
+[debug] 	[NOT REQUIRED] jline#jline;2.14.6!jline.jar(src)
+[debug] 	[NOT REQUIRED] com.github.fommil.netlib#netlib-native_system-linux-x86_64;1.1!netlib-native_system-linux-x86_64.jar(src)
+[debug] 	[NOT REQUIRED] org.spire-math#spire-macros_2.12;0.13.0!spire-macros_2.12.jar(src)
+[debug] :: resolution report :: resolve 909ms :: artifacts dl 47ms
+[debug] 	report for default#spamdetect$sources;0.1 compile produced in C:\Users\Rui Valente\Desktop\Scala\SpamDetector\SpamDetect\target\scala-2.12\resolution-cache\reports\default-spamdetect$sources-compile.xml
+[debug] 	report for default#spamdetect$sources;0.1 runtime produced in C:\Users\Rui Valente\Desktop\Scala\SpamDetector\SpamDetect\target\scala-2.12\resolution-cache\reports\default-spamdetect$sources-runtime.xml
+[debug] 	report for default#spamdetect$sources;0.1 test produced in C:\Users\Rui Valente\Desktop\Scala\SpamDetector\SpamDetect\target\scala-2.12\resolution-cache\reports\default-spamdetect$sources-test.xml
+[debug] 	report for default#spamdetect$sources;0.1 provided produced in C:\Users\Rui Valente\Desktop\Scala\SpamDetector\SpamDetect\target\scala-2.12\resolution-cache\reports\default-spamdetect$sources-provided.xml
+[debug] 	report for default#spamdetect$sources;0.1 optional produced in C:\Users\Rui Valente\Desktop\Scala\SpamDetector\SpamDetect\target\scala-2.12\resolution-cache\reports\default-spamdetect$sources-optional.xml
+[debug] 	report for default#spamdetect$sources;0.1 compile-internal produced in C:\Users\Rui Valente\Desktop\Scala\SpamDetector\SpamDetect\target\scala-2.12\resolution-cache\reports\default-spamdetect$sources-compile-internal.xml
+[debug] 	report for default#spamdetect$sources;0.1 runtime-internal produced in C:\Users\Rui Valente\Desktop\Scala\SpamDetector\SpamDetect\target\scala-2.12\resolution-cache\reports\default-spamdetect$sources-runtime-internal.xml
+[debug] 	report for default#spamdetect$sources;0.1 test-internal produced in C:\Users\Rui Valente\Desktop\Scala\SpamDetector\SpamDetect\target\scala-2.12\resolution-cache\reports\default-spamdetect$sources-test-internal.xml
+[debug] 	report for default#spamdetect$sources;0.1 plugin produced in C:\Users\Rui Valente\Desktop\Scala\SpamDetector\SpamDetect\target\scala-2.12\resolution-cache\reports\default-spamdetect$sources-plugin.xml
+[debug] 	report for default#spamdetect$sources;0.1 pom produced in C:\Users\Rui Valente\Desktop\Scala\SpamDetector\SpamDetect\target\scala-2.12\resolution-cache\reports\default-spamdetect$sources-pom.xml
+[debug] 	report for default#spamdetect$sources;0.1 scala-tool produced in C:\Users\Rui Valente\Desktop\Scala\SpamDetector\SpamDetect\target\scala-2.12\resolution-cache\reports\default-spamdetect$sources-scala-tool.xml
+[debug] 	resolve done (909ms resolve - 47ms download)

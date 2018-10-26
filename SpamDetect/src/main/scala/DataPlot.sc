@@ -1,15 +1,18 @@
 import ProcessData._
 import breeze.linalg.{DenseMatrix, DenseVector}
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////TRAINING DATA-SET///////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 //Load training set from file
-lazy val trainingSetLoaded = readFromFile("src\\main\\re" +
-  "sources\\spamdata\\trainingset.dat")
+lazy val trainingSetLoaded = readListFromFile("src\\main\\resources\\spamdata\\trainingset.dat")
 
 //Converts training set in a categorize list
-lazy val trainingSet = parseA("src\\main\\resources\\spamdata\\trainingset.dat",trainingSetLoaded)
+lazy val trainingSet = parseA(trainingSetLoaded)
 
 //Load stopwords list from file
-lazy val stopWordsList = readFromFile("src\\main\\resources\\spamdata\\stopWords.txt")
+lazy val stopWordsList = readListFromFile("src\\main\\resources\\spamdata\\stopWords.txt")
 
 //Apply stemmer to stopwords
 lazy val stemmedStopWords = applyStemmer(stopWordsList)
@@ -35,6 +38,8 @@ val termFrequencyMatrix = makeTFMatrix(trainingSetStopWords)
 //Save results to target file
 saveToFile("src\\main\\resources\\spamdata\\output.dat", trainingSetStopWords)
 
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////CROSS-VALIDATION////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 

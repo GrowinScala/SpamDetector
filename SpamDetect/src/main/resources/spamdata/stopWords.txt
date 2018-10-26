@@ -256,7 +256,6 @@ know
 known
 knows
 l
-ll
 largely
 last
 lately
@@ -485,7 +484,6 @@ specifically
 specified
 specify
 specifying
-st
 still
 stop
 strongly
@@ -496,7 +494,7 @@ such
 sufficiently
 suggest
 sup
-sure
+sure	
 t
 take
 taken
@@ -591,7 +589,6 @@ v
 value
 various
 've
-ve
 very
 via
 viz
