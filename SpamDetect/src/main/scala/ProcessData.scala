@@ -124,15 +124,16 @@ import scala.io.Source
         .replaceAll("\\.{3}"," TRIPLEDOT ")
         .replaceAll("\\d{5,}", " PHONENUMBER ")
         .replaceAll("\\w{1,4}\\/\\w{1,4}"," PER ")
-        .replaceAll("(\\p{Punct}+|\\W)((mon)|(monday)|(tue)|(tuesday)|(wed)|(wednesday)|(thu)|(thursday)|(friday)|(saturday)|(sunday))(\\p{Punct}+|\\W)"," WEEKDAY ")
+        .replaceAll("(\\p{Punct}+|\\W)((mon)|(monday)|(tue)|(tuesday)|(wed)|(wednesday)|(thu)|(thursday)|(friday)|(saturday)|(sunday))(\\p{Punct}+|\\W)"," ")
         .replaceAll("(\\p{Punct}+|\\W)((jan)|(january)|(feb)|(february)|(mar)|(march)|(apr)|(april)|(may)|(jun)|(june)|(jul)|(july)" +
-          "|(aug)|(august)|(sep)|(september)|(oct)|(october)|(nov)|(november)|(dec)|(december))(\\p{Punct}+|\\W)"," MONTH ")
+          "|(aug)|(august)|(sep)|(september)|(oct)|(october)|(nov)|(november)|(dec)|(december))(\\p{Punct}+|\\W)"," ")
         .replaceAll("(\\d+\\W*pound\\w*)|(\\d+\\W*dollar\\w*)|(\\d+\\W*cash\\w*)|(\\d+\\W*euro\\w*)|(\\d+\\W*p\\W)", " MONEY ")
         .replaceAll("(?:(?:31(\\/|-|\\.)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(\\/|-|\\.)" +
           "(?:0?[1,3-9]|1[0-2])\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})|(?:29(\\/|-|\\.)0?2\\3(?:(?:" +
           "(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))" +
           "|(?:0?[1-9]|1\\d|2[0-8])(\\/|-|\\.)(?:(?:0?[1-9])|(?:1[0-2]))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{2})", " DATE ")
-        .replaceAll("\\d{1,4}", " NUMBER ")
+        .replaceAll("\\d{1,4}", " ")
+        .replaceAll("([a-z])\\1{2,}"," REPETITION ")
       )
     )
   }
@@ -163,7 +164,7 @@ import scala.io.Source
     // Where each vector maps the proportion of the words presented in a specific sentence(Term Frequency)
     val convertedVectorList : List[DenseVector[Double]] = listOfSentences.map(x =>
                   DenseVector((mappedLisfOfWords ++ x.foldLeft(Map.empty[String, Double]){
-                      (count, word) => count + (word -> (count.getOrElse(word, 0.0) + 1.0/x.length))
+                      (count, word) => count + (word -> (count.getOrElse(word, 0.0) + 1.0))
                     }).values.toArray))
     //Restructure a list of vectors into a matrix
     val matrix = DenseMatrix(convertedVectorList:_*)
@@ -180,7 +181,7 @@ import scala.io.Source
     val TFIDFMatrix = TFMatrix(*,::).map(row=> {
     //val countRow = row.foldLeft(0.0)((count, element) => count + (if (element!=0) 1.0 else 0.0))
     val countRow = row.findAll(x => x!=0.0).length
-      row.map(x=> if(x!= 0.0) x* log1p(TFMatrixCols.toDouble/countRow) else x)
+      row.map(x=> if(x!= 0.0) x* sigmoid(TFMatrixCols.toDouble/countRow) else x)
     })
 
     TFIDFMatrix
@@ -217,14 +218,18 @@ import scala.io.Source
 
 
 
-
+  //change to list of list?
    def f1Score(cvCategories: List[Int], catPositions: List[Int]): Double = {
      def auxScore(cvCat: List[Int], catPos: List[Int]): List[Int] = {
        if (cvCat.tail.isEmpty)
          cvCat.head match {
+                                        // True Negative( not needed)
            case 0 => if (catPos.head==0) List(0, 0, 0)
+           // False Positive
            else List(0, 0, 1)
+                                          //False Negative
            case 1 => if (catPos.head==0) List(0, 1, 0)
+           // True Positive
            else List(1, 0, 0)
          }
        else

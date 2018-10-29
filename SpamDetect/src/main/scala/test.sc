@@ -12,7 +12,10 @@ val stemmedStopWords = applyStemmer(stopWordsList).distinct
   //splitA("src\\main\\resources\\spamdata\\spam.dat")
   lazy val trainingSetLoaded = readListFromFile("src\\main\\re" +
                              "sources\\spamdata\\trainingset.dat")
+  //lazy val trainingSet = parseA(List("ham, How have your little darlings been so far this week? Need a coffee run tomo?Can't believe it's that time of week already ??_"))
   lazy val trainingSet = parseA(trainingSetLoaded)
+
+
 /*
   //saveToFile("src\\main\\resources\\spamdata\\trainingset.dat", trainingSet)
   */
@@ -35,21 +38,20 @@ val stemmedStopWords = applyStemmer(stopWordsList).distinct
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Read the matrix created and saved in function
-  val TFIDFMatrixCV = readMatrixFromFile("src\\main\\resources\\spamdata\\matrixTFIDF.csv")
+  lazy val TFIDFMatrixCV = readMatrixFromFile("src\\main\\resources\\spamdata\\matrixTFIDF.csv")
 
 // trial of a list the would be the cross-validation Set
-  val cvSet = List(
+  /*val cvSet = List(
     (1, "Congrats 2 mobile 3G Videophones R yours. call 09063458130 now! videochat wid ur mates, play java games, Dload polypH music, noline rentl. bx420. ip4. 5we. 150p"),
     (0,"I hope your pee burns tonite."),
     (0,"K, wat s tht incident?"),
     (1,"Todays Voda numbers ending 1225 are selected to receive a ?50award. If you have a match please call 08712300220 quoting claim code 3100 standard rates app "),
     (1,"FreeMsg Hey there darling it's been 3 week's now and no word back! I'd like some fun you up for it still? Tb ok! XxX std chgs to send, ?1.50 to rcv")
-  )
+  )*/
 
-/*
-  val cvList = readListFromFile("src\\main\\resources\\spamdata\\crossvalidationAux.dat")
+  val cvList = readListFromFile("src\\main\\resources\\spamdata\\crossvalidation.dat")
   val cvSet = parseA(cvList)
-*/
+
   //Turn the characters to lower case
   val cvSetLower = uppertoLower(cvSet)
 
@@ -93,8 +95,8 @@ val stemmedStopWords = applyStemmer(stopWordsList).distinct
 
   //Cosine similarity is a measure of similarity between two non-zero vectors of an inner product space that
   //measures the cosine of the angle between them
-  val cosineVector = convertedVectorList.map(vector => TFIDFMatrixCV(::,*)
-                  .map(collumn => cosineSimilarity(vector.toArray, collumn.toArray)))
+  val cosineVector = (convertedVectorList.map(vector => TFIDFMatrixCV(::,*)
+                    .map(collumn => cosineSimilarity(vector.toArray, collumn.toArray))))
 
   //For every vector of the cosineVector list, it is calculated the position of the maximum value.
   //This position corresponds to the most similar string of training data with the string of CV data considered
