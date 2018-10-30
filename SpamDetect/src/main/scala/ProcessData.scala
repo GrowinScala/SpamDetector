@@ -245,10 +245,36 @@ import scala.io.Source
      2*truePos/(2*truePos+falseNeg+falsePos)
    }
 
+   def values(cosineVector : List[DenseVector[Double]], numberMax : Int ): List[Seq[Double]] = {
 
-   def positions(cosineVector : List[Transpose[DenseVector[Double]]], numberMax : Int ): List[IndexedSeq[Int]] = {
+     def auxValues(auxVector : DenseVector[Double], numberMax : Int ) : Seq[Double]= {
 
-     cosineVector.map(x => argtopk(x.t,numberMax))
+       val indexMax = argmax(auxVector)
+
+       if(numberMax == 1) auxVector(indexMax) +: Seq()
+       else auxVector(indexMax) +: auxValues(DenseVector.vertcat(auxVector.slice(0,indexMax),auxVector.slice(indexMax+1,auxVector.length)),numberMax-1)
+
+     }
+     cosineVector.map(x => auxValues(x,numberMax))
+   }
+
+   def ponderationValues(values : List[Seq[Double]], positions : List[IndexedSeq[Int]], trainingSet : List[(Int,String)]): List[Int] = {
+
+       def associateValPos (values : List[Seq[Double]], positions : List[IndexedSeq[Int]]) : List[Seq[(Int,Double)]] = {
+
+         if(values.tail.isEmpty) positions.head.zip(values.head) :: Nil
+         else positions.head.zip(values.head) +: associateValPos(values.tail,positions.tail)
+
+       }
+
+     val ponderation =  associateValPos(values,positions).map(x=> x.foldLeft(0.0)((count,y)=> if(trainingSet.drop(y._1).head._1 == 0) y._2 + count else count - y._2))
+     ponderation.map(x=> if(x > 0) 0 else 1)
+
+   }
+
+   def positions(cosineVector : List[DenseVector[Double]], numberMax : Int ): List[IndexedSeq[Int]] = {
+
+     cosineVector.map(x => argtopk(x,numberMax))
 
    }
 

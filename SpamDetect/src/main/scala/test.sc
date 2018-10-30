@@ -39,17 +39,17 @@ val stemmedStopWords = applyStemmer(stopWordsList).distinct
 
 // trial of a list the would be the cross-validation Set
 
-val cvSet = List(
+/*val cvSet = List(
     (1, "Congrats 2 mobile 3G Videophones R yours. call 09063458130 now! videochat wid ur mates, play java games, Dload polypH music, noline rentl. bx420. ip4. 5we. 150p"),
     (0,"I hope your pee burns tonite."),
     (0,"K, wat s tht incident?"),
     (1,"Todays Voda numbers ending 1225 are selected to receive a ?50award. If you have a match please call 08712300220 quoting claim code 3100 standard rates app "),
     (1,"FreeMsg Hey there darling it's been 3 week's now and no word back! I'd like some fun you up for it still? Tb ok! XxX std chgs to send, ?1.50 to rcv")
-  )
+  )*/
 
 
- // val cvList = readListFromFile("src\\main\\resources\\spamdata\\crossvalidation.dat")
- //val cvSet = parseA(cvList)
+  val cvList = readListFromFile("src\\main\\resources\\spamdata\\crossvalidation.dat")
+  val cvSet = parseA(cvList)
 
   //Turn the characters to lower case
   val cvSetLower = uppertoLower(cvSet)
@@ -94,17 +94,19 @@ val cvSet = List(
 
   //Cosine similarity is a measure of similarity between two non-zero vectors of an inner product space that
   //measures the cosine of the angle between them
-  val cosineVector : List[Transpose[DenseVector[Double]]]  = (convertedVectorList.map(vector => TFIDFMatrixCV(::,*)
-                    .map(collumn => cosineSimilarity(vector.toArray, collumn.toArray))))
+  val cosineVector : List[DenseVector[Double]]  = (convertedVectorList.map(vector => TFIDFMatrixCV(::,*)
+                    .map(collumn => cosineSimilarity(vector.toArray, collumn.toArray)).t))
 
   //For every vector of the cosineVector list, it is calculated the position of the maximum value.
   //This position corresponds to the most similar string of training data with the string of CV data considered
 
 
-  val positionsC: List[IndexedSeq[Int]] = positions(cosineVector,3)
+  val positionsC = positions(cosineVector,3)
+  val valuesC = values(cosineVector,3)
 
+  val categorizePositions = ponderationValues(valuesC,positionsC,trainingSet)
   //
-  val categorizePositions = seeMajority(positionsC,trainingSet)
+  //val categorizePositions = seeMajority(positionsC,trainingSet)
   // positionsC.map(x => trainingSet.drop(x).head._1)
 
   f1Score(cvCategories, categorizePositions)
