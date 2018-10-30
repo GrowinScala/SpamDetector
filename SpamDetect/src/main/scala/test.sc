@@ -35,21 +35,22 @@ val stemmedStopWords = applyStemmer(stopWordsList).distinct
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Read the matrix created and saved in function
-  val TFIDFMatrixCV = readMatrixFromFile("src\\main\\resources\\spamdata\\matrixTFIDF.csv")
+ lazy val TFIDFMatrixCV = readMatrixFromFile("src\\main\\resources\\spamdata\\matrixTFIDF.csv")
 
 // trial of a list the would be the cross-validation Set
-  val cvSet = List(
+/*
+val cvSet = List(
     (1, "Congrats 2 mobile 3G Videophones R yours. call 09063458130 now! videochat wid ur mates, play java games, Dload polypH music, noline rentl. bx420. ip4. 5we. 150p"),
     (0,"I hope your pee burns tonite."),
     (0,"K, wat s tht incident?"),
     (1,"Todays Voda numbers ending 1225 are selected to receive a ?50award. If you have a match please call 08712300220 quoting claim code 3100 standard rates app "),
     (1,"FreeMsg Hey there darling it's been 3 week's now and no word back! I'd like some fun you up for it still? Tb ok! XxX std chgs to send, ?1.50 to rcv")
   )
-
-/*
-  val cvList = readListFromFile("src\\main\\resources\\spamdata\\crossvalidationAux.dat")
-  val cvSet = parseA(cvList)
 */
+
+  val cvList = readListFromFile("src\\main\\resources\\spamdata\\crossvalidation.dat")
+  val cvSet = parseA(cvList)
+
   //Turn the characters to lower case
   val cvSetLower = uppertoLower(cvSet)
 
@@ -88,13 +89,13 @@ val stemmedStopWords = applyStemmer(stopWordsList).distinct
   //maps the proportion of the words presented in a specific sentence (Term Frequency)
   val convertedVectorList: List[DenseVector[Double]] = listOfCVintersected.map(x=>
                         DenseVector((mappedLisfOfWords ++ x.foldLeft(Map.empty[String, Double]){
-                        (count, word) => count + (word -> (count.getOrElse(word, 0.0) + 1.0/x.length))
+                        (count, word) => count + (word -> (count.getOrElse(word, 0.0) + 1.0))
                         }).values.toArray))
 
   //Cosine similarity is a measure of similarity between two non-zero vectors of an inner product space that
   //measures the cosine of the angle between them
-  val cosineVector = convertedVectorList.map(vector => TFIDFMatrixCV(::,*)
-                  .map(collumn => cosineSimilarity(vector.toArray, collumn.toArray)))
+  val cosineVector = (convertedVectorList.map(vector => TFIDFMatrixCV(::,*)
+                    .map(collumn => cosineSimilarity(vector.toArray, collumn.toArray))))
 
   //For every vector of the cosineVector list, it is calculated the position of the maximum value.
   //This position corresponds to the most similar string of training data with the string of CV data considered
@@ -102,6 +103,5 @@ val stemmedStopWords = applyStemmer(stopWordsList).distinct
 
   //
   val categorizePositions = positions.map(x => trainingSet.drop(x).head._1)
-
 
   f1Score(cvCategories, categorizePositions)
