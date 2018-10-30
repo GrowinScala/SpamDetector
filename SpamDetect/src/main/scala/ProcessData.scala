@@ -131,7 +131,7 @@ import scala.io.Source
         .replaceAll("(?:(?:31(\\/|-|\\.)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(\\/|-|\\.)" +
           "(?:0?[1,3-9]|1[0-2])\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})|(?:29(\\/|-|\\.)0?2\\3(?:(?:" +
           "(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))" +
-          "|(?:0?[1-9]|1\\d|2[0-8])(\\/|-|\\.)(?:(?:0?[1-9])|(?:1[0-2]))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{2})", " DATE ")
+          "|(?:0?[1-9]|1\\d|2[0-8])(\\/|-|\\.)(?:(?:0?[1-9])|(?:1[0-2]))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{2})", " ")
         .replaceAll("\\d{1,4}", " ")
         .replaceAll("([a-z])\\1{2,}"," REPETITION ")
       )
@@ -182,7 +182,7 @@ import scala.io.Source
     val TFIDFMatrix = TFMatrix(*,::).map(row=> {
     //val countRow = row.foldLeft(0.0)((count, element) => count + (if (element!=0) 1.0 else 0.0))
     val countRow = row.findAll(x => x!=0.0).length
-      row.map(x=> if(x!= 0.0) x* pow(sigmoid(TFMatrixCols.toDouble/countRow), 2) else x)
+      row.map(x=> if(x!= 0.0) x* sigmoid(TFMatrixCols.toDouble/countRow) else x)
     })
 
     TFIDFMatrix
@@ -243,6 +243,20 @@ import scala.io.Source
      val falseNeg:Double = Score.tail.head.toDouble
      val falsePos:Double = Score.tail.tail.head.toDouble
      2*truePos/(2*truePos+falseNeg+falsePos)
+   }
+
+
+   def positions(cosineVector : List[Transpose[DenseVector[Double]]], numberMax : Int ): List[IndexedSeq[Int]] = {
+
+     cosineVector.map(x => argtopk(x.t,numberMax))
+
+   }
+
+   def seeMajority( positions : List[IndexedSeq[Int]], trainingSet: List[(Int,String)]): List[Int] ={
+
+     val majority = positions.map(x => x.foldLeft(0)((count,y) => trainingSet.drop(y).head._1 + count ))
+     majority.map(x=> if( x<= 1) 0 else 1)
+
    }
 
 }

@@ -267,7 +267,7 @@ liked
 likely
 line
 little
-'ll
+ll
 look
 looking
 looks
@@ -375,6 +375,7 @@ part
 particular
 particularly
 past
+per
 perhaps
 placed
 please
@@ -575,7 +576,7 @@ usually
 v
 value
 various
-'ve
+ve
 very
 via
 viz
