@@ -261,32 +261,14 @@ import scala.io.Source
      convertedMatrix(::, *).map(colsCV => TFIDFMatrixCV(::, *).map(cols => EuclidianDistance(colsCV, cols)).inner).toDenseMatrix.t
    }
 
-   def f1Score(cvCategories: List[Int], catPositions: List[Int]): Double = {
-     def auxScore(cvCat: List[Int], catPos: List[Int]): List[Int] = {
-       if (cvCat.tail.isEmpty)
-         cvCat.head match {
-           //True Negative(not used)
-           case 0 => if (catPos.head==0) List(0, 0, 0)
-           //False Positive
-           else List(0, 0, 1)
-           // FalseNegative
-           case 1 => if (catPos.head==0) List(0, 1, 0)
-           //True positive
-           else List(1, 0, 0)
-         }
-       else
-         cvCat.head match {
-           case 0 => if (catPos.head==0) auxScore(cvCat.tail, catPos.tail)
-           else (List(0, 0, 1),auxScore(cvCat.tail, catPos.tail)).zipped.map(_ + _)
-           case 1 => if (catPos.head==0) (List(0, 1, 0),auxScore(cvCat.tail, catPos.tail)).zipped.map(_ + _)
-           else (List(1, 0, 0),auxScore(cvCat.tail, catPos.tail)).zipped.map(_+_)
-         }
-     }
-     //List(TruePositive,FalseNegative,FalsePositive)
-     val Score: List[Int] = auxScore(cvCategories, catPositions)
-     val truePos: Double = Score.head.toDouble
-     val falseNeg:Double = Score.tail.head.toDouble
-     val falsePos:Double = Score.tail.tail.head.toDouble
+   def f1Score(cvCategories: DenseVector[Int], catPositions: DenseVector[Int]): Double = {
+     //The vector cvCategories is multiplied by 1 and summed with the vector catPositions that is multiplied by 2
+     //This will help us to distinct the different cases (0,0), (0,1), (1, 0) and (1, 1)
+     val scoreVector = cvCategories + catPositions*2
+
+     val truePos: Double = (scoreVector :== 3).activeSize
+     val falseNeg:Double = (scoreVector :== 1).activeSize
+     val falsePos:Double = (scoreVector :== 2).activeSize
      2*truePos/(2*truePos+falseNeg+falsePos)
    }
 

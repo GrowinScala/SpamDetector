@@ -17,6 +17,7 @@ val stemmedStopWords = applyStemmer(stopWordsList).distinct
   lazy val trainingSetLoaded = readListFromFile("src\\main\\re" +
                              "sources\\spamdata\\trainingset.dat")
   lazy val trainingSet = parseA(trainingSetLoaded)
+  val trainingSetVector =  DenseVector(trainingSet.map(x => x._1).toArray)
 /*
   //saveToFile("src\\main\\resources\\spamdata\\trainingset.dat", trainingSet)
   */
@@ -44,18 +45,18 @@ val stemmedStopWords = applyStemmer(stopWordsList).distinct
 
 // trial of a list the would be the cross-validation Set
 
-/*val cvSet = List(
+val cvSet = List(
     (1, "Congrats congrat 2 mobile 3G Videophones R yours. call 09063458130 now! videochat wid ur mates, play java games, Dload polypH music, noline rentl. bx420. ip4. 5we. 150p"),
     (0,"I hope your pee burns tonite."),
     (0,"K, wat s tht incident?"),
     (1,"Todays Voda numbers ending 1225 are selected to receive a ?50award. If you have a match please call 08712300220 quoting claim code 3100 standard rates app "),
     (1,"FreeMsg Hey there darling it's been 3 week's now and no word back! I'd like some fun you up for it still? Tb ok! XxX std chgs to send, ?1.50 to rcv")
-  )*/
+)
 
-
+/*
   val cvList = readListFromFile("src\\main\\resources\\spamdata\\crossvalidation.dat")
   val cvSet = parseA(cvList)
-
+*/
   //Turn the characters to lower case
   val cvSetLower = uppertoLower(cvSet)
 
@@ -67,6 +68,7 @@ val stemmedStopWords = applyStemmer(stopWordsList).distinct
 
   //Creates an ordered list of the categories (spam->1 or ham ->0)(int) for each string
   val cvCategories = cvSetPonctuation.map(x=> x._1)
+  val cvCategoriesVector = DenseVector(cvCategories.toArray)
   //Apply stemmer to the list of sentences (string) and merge it with the correspondent category (ham -> 0 or spam ->1)
   val cvStemmed = cvCategories.zip(applyStemmer(cvSetPonctuation.map(x=> x._2)))
 
@@ -104,12 +106,18 @@ val stemmedStopWords = applyStemmer(stopWordsList).distinct
   println("COSINE SIMILARITY")
   val positionsC :DenseVector[Int] = cosineMatrix(*, ::).map(row => argmax(row))
   val valuesC :DenseVector[Double] = cosineMatrix(*, ::).map(row => max(row))
+
+
+  val categorizePositions = positionsC.map(x => trainingSetVector(x))
+
+
   //val categorizePositions = positionsC.map(x => trainingSet.drop(x).head._1).toArray.toList
-  val categorizePositions = valuesC.map(x => if(x > 0.01){
+  /*val categorizePositions = valuesC.map(x => if(x > 0.01){
     trainingSet.drop(positionsC(valuesC.toArray.toList.indexOf(x))).head._1
   } else 0)
+  */
 
-  f1Score(cvCategories, categorizePositions.toArray.toList)
+  f1Score(cvCategoriesVector, categorizePositions)
 
   val finalTime = System.currentTimeMillis
 
