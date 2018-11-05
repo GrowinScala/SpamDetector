@@ -1,7 +1,11 @@
+
 import breeze.linalg._
 import breeze.numerics._
 import breeze.plot._
 import ProcessData._
+
+
+val inicialTime: Long = System.currentTimeMillis
 
 //import list of Stop Words provided early
 lazy val stopWordsList = readListFromFile("src\\main\\resources\\spamdata\\stopWords.txt")
@@ -39,15 +43,15 @@ val stemmedStopWords = applyStemmer(stopWordsList).distinct
  lazy val TFIDFMatrixCV = readMatrixFromFile("src\\main\\resources\\spamdata\\matrixTFIDF.csv")
 
 // trial of a list the would be the cross-validation Set
-/*
-val cvSet = List(
+
+/*val cvSet = List(
     (1, "Congrats congrat 2 mobile 3G Videophones R yours. call 09063458130 now! videochat wid ur mates, play java games, Dload polypH music, noline rentl. bx420. ip4. 5we. 150p"),
     (0,"I hope your pee burns tonite."),
     (0,"K, wat s tht incident?"),
     (1,"Todays Voda numbers ending 1225 are selected to receive a ?50award. If you have a match please call 08712300220 quoting claim code 3100 standard rates app "),
     (1,"FreeMsg Hey there darling it's been 3 week's now and no word back! I'd like some fun you up for it still? Tb ok! XxX std chgs to send, ?1.50 to rcv")
-  )
-*/
+  )*/
+
 
   val cvList = readListFromFile("src\\main\\resources\\spamdata\\crossvalidation.dat")
   val cvSet = parseA(cvList)
@@ -86,21 +90,8 @@ val cvSet = List(
   //created from the training set
   val listOfCVintersected: List[List[String]] = listOfCVSentences.map(x=> x.filter(y => listOfWords.contains(y)))
 
-
   //Every words is attributed the value of converted sentence into a map where each vector
   //maps the proportion of the words presented in a specific sentence (Term Frequency)
-
-  def convertedMatrixList(listOfCVintersected: List[List[String]], mappedLisfOfWords: Map[String,Double]): DenseMatrix[Double] = {
-    def convertedAux(listAux: List[List[String]], mappedListAux: Map[String,Double]): DenseMatrix[Double] = {
-      if (listAux.tail.isEmpty) DenseMatrix((mappedLisfOfWords ++ listAux.head.foldLeft(Map.empty[String, Double]){
-        (count, word) => count + (word -> (count.getOrElse(word, 0.0) + 1.0))}).values.toArray)
-      else
-      DenseMatrix.vertcat(DenseMatrix((mappedLisfOfWords ++ listAux.head.foldLeft(Map.empty[String, Double]){
-        (count, word) => count + (word -> (count.getOrElse(word, 0.0) + 1.0))}).values.toArray), convertedAux(listAux.tail, mappedListAux))
-    }
-    convertedAux(listOfCVintersected, mappedLisfOfWords).t
-  }
-
   val convertedMatrix: DenseMatrix[Double] = convertedMatrixList(listOfCVintersected, mappedLisfOfWords)
 
   //This function will calculate the cosine similarity between the convertedMatrix and TFIDF Matrix
@@ -108,22 +99,26 @@ val cvSet = List(
   //various strings of the training set
   val cosineMatrix = cosineVector(TFIDFMatrixCV, convertedMatrix)
 
-  def distanceVector(TFIDFMatrixCV: DenseMatrix[Double], convertedMatrix: DenseMatrix[Double]): DenseMatrix[Double] = {
-    convertedMatrix(::, *).map(colsCV => TFIDFMatrixCV(::, *).map(cols => EuclidianDistance(colsCV, cols)).inner).toDenseMatrix.t
-  }
-
-  def EuclidianDistance(x: DenseVector[Double], y: DenseVector[Double]): Double = {
-    sqrt((x-y) dot (x-y))
-  }
-  val distanceMatrix = distanceVector(TFIDFMatrixCV, convertedMatrix)
-
   //For every vector of the cosineVector list, it is calculated the position of the maximum value.
   //This position corresponds to the most similar string of training data with the string of CV data considered
   println("COSINE SIMILARITY")
-  val positionsC = cosineMatrix(*, ::).map(row => argmax(row))
-  val categorizePositions = positionsC.map(x => trainingSet.drop(x).head._1).toArray.toList
-  f1Score(cvCategories, categorizePositions)
-  println("EUCLIDEAN SIMILARITY")
+  val positionsC :DenseVector[Int] = cosineMatrix(*, ::).map(row => argmax(row))
+  val valuesC :DenseVector[Double] = cosineMatrix(*, ::).map(row => max(row))
+  //val categorizePositions = positionsC.map(x => trainingSet.drop(x).head._1).toArray.toList
+  val categorizePositions = valuesC.map(x => if(x > 0.01){
+    trainingSet.drop(positionsC(valuesC.toArray.toList.indexOf(x))).head._1
+  } else 0)
+
+  f1Score(cvCategories, categorizePositions.toArray.toList)
+
+  val finalTime = System.currentTimeMillis
+
+ //Running time in seconds
+  val timeRunning = (finalTime - inicialTime)/1000 + " seconds"
+
+  /*println("EUCLIDEAN SIMILARITY")
+  val distanceMatrix = distanceVector(TFIDFMatrixCV, convertedMatrix)
   val positionsE = distanceMatrix(*, ::).map(row => argmin(row))
   val categorizePositionsE = positionsE.map(x => trainingSet.drop(x).head._1).toArray.toList
   f1Score(cvCategories, categorizePositionsE)
+  */

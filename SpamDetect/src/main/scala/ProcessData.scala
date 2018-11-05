@@ -1,14 +1,13 @@
 import java.io.{BufferedWriter, File, FileWriter}
 
-import breeze.linalg
 import breeze.linalg._
-import breeze.linalg.support.CanSlice2
 import breeze.numerics._
-import sun.nio.cs.ISO_8859_2
+
 import scala.io.Source
 
  object ProcessData {
   // Saves a List of integers to target path
+
   /*def saveToFileInt(pathSet: String, targetSet: List[Int])={
     val file = new File(pathSet)
     val bw = new BufferedWriter(new FileWriter(file))
@@ -211,6 +210,7 @@ import scala.io.Source
    val cosineVector: DenseMatrix[Double] = cosineVector(convertedMatrix, TFIDFMatrixCV)
 
    */
+
    /*
    * This method takes 2 equal length arrays of doubles
    * It returns a double representing similarity of the 2 arrays
@@ -238,8 +238,28 @@ import scala.io.Source
      else 0
    }
 
+   //Every words is attributed the value of converted sentence into a map where each vector
+   //maps the proportion of the words presented in a specific sentence (Term Frequency)
 
+   def convertedMatrixList(listOfCVintersected: List[List[String]], mappedLisfOfWords: Map[String,Double]): DenseMatrix[Double] = {
+     def convertedAux(listAux: List[List[String]], mappedListAux: Map[String,Double]): DenseMatrix[Double] = {
+       if (listAux.tail.isEmpty) DenseMatrix((mappedLisfOfWords ++ listAux.head.foldLeft(Map.empty[String, Double]){
+         (count, word) => count + (word -> (count.getOrElse(word, 0.0) + 1.0))}).values.toArray)
+       else
+         DenseMatrix.vertcat(DenseMatrix((mappedLisfOfWords ++ listAux.head.foldLeft(Map.empty[String, Double]){
+           (count, word) => count + (word -> (count.getOrElse(word, 0.0) + 1.0))}).values.toArray), convertedAux(listAux.tail, mappedListAux))
+     }
+     convertedAux(listOfCVintersected, mappedLisfOfWords).t
+   }
 
+   def EuclidianDistance(x: DenseVector[Double], y: DenseVector[Double]): Double = {
+     sqrt((x-y) dot (x-y))
+   }
+
+  // Applies Euclidian Distance to every coulunm of both matrices
+   def distanceVector(TFIDFMatrixCV: DenseMatrix[Double], convertedMatrix: DenseMatrix[Double]): DenseMatrix[Double] = {
+     convertedMatrix(::, *).map(colsCV => TFIDFMatrixCV(::, *).map(cols => EuclidianDistance(colsCV, cols)).inner).toDenseMatrix.t
+   }
 
    def f1Score(cvCategories: List[Int], catPositions: List[Int]): Double = {
      def auxScore(cvCat: List[Int], catPos: List[Int]): List[Int] = {
@@ -270,8 +290,6 @@ import scala.io.Source
      2*truePos/(2*truePos+falseNeg+falsePos)
    }
 
-
-   /*
    //The code below was constructed to test a different approach to the cosine similarity
    //using the weighted balancing of the k closest vectors
    def values(cosineVector : List[DenseVector[Double]], numberMax : Int ): List[Seq[Double]] = {
@@ -287,6 +305,7 @@ import scala.io.Source
      cosineVector.map(x => auxValues(x,numberMax))
    }
 
+   /*
    def ponderationValues(values : List[Seq[Double]], positions : List[IndexedSeq[Int]], trainingSet : List[(Int,String)]): List[Int] = {
        def associateValPos (values : List[Seq[Double]], positions : List[IndexedSeq[Int]]) : List[Seq[(Int,Double)]] = {
          if(values.tail.isEmpty) positions.head.zip(values.head) :: Nil
