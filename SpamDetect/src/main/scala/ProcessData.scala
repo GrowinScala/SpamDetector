@@ -195,6 +195,7 @@ import scala.io.Source
      convertedMatrix(::, *).map(colsCV => TFIDFMatrixCV(::, *).map(cols => cosineSimilarity(colsCV, cols)).inner).toDenseMatrix.t
 
 
+
    //This function is a worse version of
   //convertedMatrix(::, *).map(colsCV => TFIDFMatrixCV(::, *).map(cols => cosineSimilarity(colsCV, cols)).inner).toDenseMatrix.t
    /*
