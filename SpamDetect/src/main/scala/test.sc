@@ -22,6 +22,7 @@ val stemmedStopWords = applyStemmer(stopWordsList).distinct
   val trainingStemmed = trainingSetPonctuation.map(x=> x._1)
                         .zip(applyStemmer(trainingSetPonctuation.map(x=> x._2)))
   val trainingSetStopWords = takeStopWords(stemmedStopWords, trainingStemmed)
+  val trainingSetLength = countLength(trainingSetStopWords).map(x=> x._2)
   //
   val TFmatrix = makeTFMatrix(trainingSetStopWords)
   //Creates TFIDF matrix through TF matrix
@@ -39,17 +40,17 @@ val stemmedStopWords = applyStemmer(stopWordsList).distinct
 
 // trial of a list the would be the cross-validation Set
 
-/*val cvSet = List(
-    (1, "Congrats 2 mobile 3G Videophones R yours. call 09063458130 now! videochat wid ur mates, play java games, Dload polypH music, noline rentl. bx420. ip4. 5we. 150p"),
+val cvSet = List(
+    (1, "Congrats congrat 2 mobile 3G Videophones R yours. call 09063458130 now! videochat wid ur mates, play java games, Dload polypH music, noline rentl. bx420. ip4. 5we. 150p"),
     (0,"I hope your pee burns tonite."),
     (0,"K, wat s tht incident?"),
     (1,"Todays Voda numbers ending 1225 are selected to receive a ?50award. If you have a match please call 08712300220 quoting claim code 3100 standard rates app "),
     (1,"FreeMsg Hey there darling it's been 3 week's now and no word back! I'd like some fun you up for it still? Tb ok! XxX std chgs to send, ?1.50 to rcv")
-  )*/
+  )
 
 
-  val cvList = readListFromFile("src\\main\\resources\\spamdata\\crossvalidation.dat")
-  val cvSet = parseA(cvList)
+  //val cvList = readListFromFile("src\\main\\resources\\spamdata\\crossvalidation.dat")
+  //val cvSet = parseA(cvList)
 
   //Turn the characters to lower case
   val cvSetLower = uppertoLower(cvSet)
@@ -67,6 +68,7 @@ val stemmedStopWords = applyStemmer(stopWordsList).distinct
 
   //Remove stopwords from training set
   val cvSetStopWords = takeStopWords(stemmedStopWords, cvStemmed)
+  val cvLength = countLength(cvSetStopWords).map(x=> x._2)
 
   //Read list of Words that were achieved in the training set data
   lazy val listOfWords = readListFromFile("src\\main\\re" +
@@ -82,31 +84,35 @@ val stemmedStopWords = applyStemmer(stopWordsList).distinct
 
   //Filter, from the cross validation set, the sentences that are not considered in the list of Words
   //created from the training set
-  val listOfCVintersected = listOfCVSentences.map(x=> x.filter(y => listOfWords.contains(y)))
+  val listOfCVintersected: List[List[String]] = listOfCVSentences.map(x=> x.filter(y => listOfWords.contains(y)))
 
 
   //Every words is attributed the value of converted sentence into a map where each vector
   //maps the proportion of the words presented in a specific sentence (Term Frequency)
-  val convertedVectorList: List[DenseVector[Double]] = listOfCVintersected.map(x=>
-                        DenseVector((mappedLisfOfWords ++ x.foldLeft(Map.empty[String, Double]){
-                        (count, word) => count + (word -> (count.getOrElse(word, 0.0) + 1.0))
-                        }).values.toArray))
 
-  //Cosine similarity is a measure of similarity between two non-zero vectors of an inner product space that
-  //measures the cosine of the angle between them
-  val cosineVector : List[DenseVector[Double]]  = (convertedVectorList.map(vector => TFIDFMatrixCV(::,*)
-                    .map(collumn => cosineSimilarity(vector.toArray, collumn.toArray)).t))
+  def convertedMatrixList(listOfCVintersected: List[List[String]], mappedLisfOfWords: Map[String,Double]): DenseMatrix[Double] = {
+    def convertedAux(listAux: List[List[String]], mappedListAux: Map[String,Double]): DenseMatrix[Double] = {
+      if (listAux.tail.isEmpty) DenseMatrix((mappedLisfOfWords ++ listAux.head.foldLeft(Map.empty[String, Double]){
+        (count, word) => count + (word -> (count.getOrElse(word, 0.0) + 1.0))}).values.toArray)
+      else
+      DenseMatrix.vertcat(DenseMatrix((mappedLisfOfWords ++ listAux.head.foldLeft(Map.empty[String, Double]){
+        (count, word) => count + (word -> (count.getOrElse(word, 0.0) + 1.0))}).values.toArray), convertedAux(listAux.tail, mappedListAux))
+    }
+    convertedAux(listOfCVintersected, mappedLisfOfWords).t
+  }
+
+  val convertedMatrix: DenseMatrix[Double] = convertedMatrixList(listOfCVintersected, mappedLisfOfWords)
+
+  //This function will calculate the cosine similarity between the convertedMatrix and TFIDF Matrix
+  //It will return a matrix where each row represents the different values between a string j of cross validation and the
+  //various strings of the training set
+  val cosineMatrix = cosineVector(TFIDFMatrixCV, convertedMatrix)
+
+
+
 
   //For every vector of the cosineVector list, it is calculated the position of the maximum value.
   //This position corresponds to the most similar string of training data with the string of CV data considered
-
-
-  val positionsC = positions(cosineVector,3)
-  val valuesC = values(cosineVector,3)
-
-  val categorizePositions = ponderationValues(valuesC,positionsC,trainingSet)
-  //
-  //val categorizePositions = seeMajority(positionsC,trainingSet)
-  // positionsC.map(x => trainingSet.drop(x).head._1)
-
+  val positionsC = cosineMatrix(*, ::).map(row => argmax(row))
+  val categorizePositions = positionsC.map(x => trainingSet.drop(x).head._1).toArray.toList
   f1Score(cvCategories, categorizePositions)

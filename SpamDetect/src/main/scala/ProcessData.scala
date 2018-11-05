@@ -127,7 +127,7 @@ import scala.io.Source
         .replaceAll("(\\p{Punct}+|\\W)((mon)|(monday)|(tue)|(tuesday)|(wed)|(wednesday)|(thu)|(thursday)|(friday)|(saturday)|(sunday))(\\p{Punct}+|\\W)"," ")
         .replaceAll("(\\p{Punct}+|\\W)((jan)|(january)|(feb)|(february)|(mar)|(march)|(apr)|(april)|(may)|(jun)|(june)|(jul)|(july)" +
           "|(aug)|(august)|(sep)|(september)|(oct)|(october)|(nov)|(november)|(dec)|(december))(\\p{Punct}+|\\W)"," ")
-        .replaceAll("(\\d+\\W*pound\\w*)|(\\d+\\W*dollar\\w*)|(\\d+\\W*cash\\w*)|(\\d+\\W*euro\\w*)|(\\d+\\W*p\\W)", " MONEY ")
+        .replaceAll("(\\d+\\W*pound\\w*)|(\\d+\\W*dollar\\w*)|(\\d+\\W*cash\\w*)|(\\d+\\W*euro\\w*)|(\\d+\\W*p(\\s|$))", " MONEY ")
         .replaceAll("(?:(?:31(\\/|-|\\.)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(\\/|-|\\.)" +
           "(?:0?[1,3-9]|1[0-2])\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})|(?:29(\\/|-|\\.)0?2\\3(?:(?:" +
           "(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))" +
@@ -188,29 +188,49 @@ import scala.io.Source
     TFIDFMatrix
   }
 
+   //This function will calculate the cosine similarity between the convertedMatrix and TFIDF Matrix
+   //It will return a matrix where each row represents the different values between a string j of cross validation and the
+   //various strings of the training set
+   def cosineVector(TFIDFMatrixCV: DenseMatrix[Double], convertedMatrix: DenseMatrix[Double]): DenseMatrix[Double] =
+     convertedMatrix(::, *).map(colsCV => TFIDFMatrixCV(::, *).map(cols => cosineSimilarity(colsCV, cols)).inner).toDenseMatrix.t
+
+
+   //This function is a worse version of
+  //convertedMatrix(::, *).map(colsCV => TFIDFMatrixCV(::, *).map(cols => cosineSimilarity(colsCV, cols)).inner).toDenseMatrix.t
+   /*
+     def cosineVector(convertedMatrix: DenseMatrix[Double],  TFIDFMatrixCV: DenseMatrix[Double]): DenseMatrix[Double] = {
+       def cosineVectorAux(convertedMatrixAux: DenseMatrix[Double],  TFIDFMatrixCVAux: DenseMatrix[Double]):DenseMatrix[Double] = {
+          val vetor1: DenseMatrix[Double] = TFIDFMatrixCVAux(::, *).map(cols => cosineSimilarity(convertedMatrixAux(::, 0), cols)).inner.toDenseMatrix
+
+         if (convertedMatrixAux.cols == 2 ) DenseMatrix.vertcat(vetor1, TFIDFMatrixCVAux(::, *).map(cols => cosineSimilarity(convertedMatrixAux(::, 1), cols)).inner.toDenseMatrix)
+         else DenseMatrix.vertcat(vetor1, cosineVectorAux(convertedMatrixAux(::, 1 to -1), TFIDFMatrixCVAux))
+       }
+       cosineVectorAux(convertedMatrix,  TFIDFMatrixCV)
+     }
+   val cosineVector: DenseMatrix[Double] = cosineVector(convertedMatrix, TFIDFMatrixCV)
+
+   */
    /*
    * This method takes 2 equal length arrays of doubles
    * It returns a double representing similarity of the 2 arrays
    * 0.9925 would be 99.25% similar
    * (x dot y)/||X|| ||Y||
    */
-   def cosineSimilarity(x: Array[Double], y: Array[Double]): Double = {
+   def cosineSimilarity(x: DenseVector[Double], y: DenseVector[Double]): Double = {
        /*
       * Return the dot product of the 2 arrays
       * e.g. (a[0]*b[0])+(a[1]*a[2])
       */
-       def dotProduct(x: Array[Double], y: Array[Double]): Double = {
-         (for ((a, b) <- x zip y) yield a * b) sum
+       def dotProduct(x: DenseVector[Double], y: DenseVector[Double]): Double = {
+         x dot y
        }
 
        /*
         * Return the magnitude of an array
         * We multiply each element, sum it, then square root the result.
         */
-       def magnitude(x: Array[Double]): Double = {
-         math.sqrt(x map (i => i * i) sum)
-       }
-       require(x.length == y.length)
+       def magnitude(x: DenseVector[Double]): Double = sqrt(x dot x)
+       //require(x.length == y.length)
 
      val magMultiplication = magnitude(x) * magnitude(y)
      if (magMultiplication !=0.0) dotProduct(x, y) / magMultiplication
@@ -224,9 +244,13 @@ import scala.io.Source
      def auxScore(cvCat: List[Int], catPos: List[Int]): List[Int] = {
        if (cvCat.tail.isEmpty)
          cvCat.head match {
+           //True Negative(not used)
            case 0 => if (catPos.head==0) List(0, 0, 0)
+           //False Positive
            else List(0, 0, 1)
+           // FalseNegative
            case 1 => if (catPos.head==0) List(0, 1, 0)
+           //True positive
            else List(1, 0, 0)
          }
        else
@@ -245,6 +269,10 @@ import scala.io.Source
      2*truePos/(2*truePos+falseNeg+falsePos)
    }
 
+
+   /*
+   //The code below was constructed to test a different approach to the cosine similarity
+   //using the weighted balancing of the k closest vectors
    def values(cosineVector : List[DenseVector[Double]], numberMax : Int ): List[Seq[Double]] = {
 
      def auxValues(auxVector : DenseVector[Double], numberMax : Int ) : Seq[Double]= {
@@ -259,23 +287,18 @@ import scala.io.Source
    }
 
    def ponderationValues(values : List[Seq[Double]], positions : List[IndexedSeq[Int]], trainingSet : List[(Int,String)]): List[Int] = {
-
        def associateValPos (values : List[Seq[Double]], positions : List[IndexedSeq[Int]]) : List[Seq[(Int,Double)]] = {
-
          if(values.tail.isEmpty) positions.head.zip(values.head) :: Nil
          else positions.head.zip(values.head) +: associateValPos(values.tail,positions.tail)
 
        }
-
-     val ponderation =  associateValPos(values,positions).map(x=> x.foldLeft(0.0)((count,y)=> if(trainingSet.drop(y._1).head._1 == 0) y._2 + count else count - y._2))
+     val ponderation =  associateValPos(values,positions).map(x=> x.foldLeft(0.0)((count,y)=> if(trainingSet.drop(y._1).head._1 == 0) pow(y._2, 2) + count else count - pow(y._2, 2)))
      ponderation.map(x=> if(x > 0) 0 else 1)
 
    }
 
    def positions(cosineVector : List[DenseVector[Double]], numberMax : Int ): List[IndexedSeq[Int]] = {
-
      cosineVector.map(x => argtopk(x,numberMax))
-
    }
 
    def seeMajority( positions : List[IndexedSeq[Int]], trainingSet: List[(Int,String)]): List[Int] ={
@@ -284,5 +307,5 @@ import scala.io.Source
      majority.map(x=> if( x<= 1) 0 else 1)
 
    }
-
+   */
 }
