@@ -7,7 +7,7 @@ import ProcessData._
 
 val inicialTime: Long = System.currentTimeMillis
 
-val spamDataPath =  getClass.getResource("/spamdata").getPath
+val spamDataPath =  getClass.getResource("/spamdata").getPath.replaceAll("%20", " ")
 
 //import list of Stop Words provided early
 lazy val stopWordsList = readListFromFile(spamDataPath + "/stopWords.txt")
@@ -45,7 +45,7 @@ val stemmedStopWords = applyStemmer(stopWordsList).distinct
  lazy val TFIDFMatrixCV = readMatrixFromFile(spamDataPath +"/matrixTFIDF.csv")
 
 // trial of a list the would be the cross-validation Set
-
+/*
 val cvSet = List(
     (1, "Congrats congrat 2 mobile 3G Videophones R yours. call 09063458130 now! videochat wid ur mates, play java games, Dload polypH music, noline rentl. bx420. ip4. 5we. 150p"),
     (0,"I hope your pee burns tonite."),
@@ -53,11 +53,11 @@ val cvSet = List(
     (1,"Todays Voda numbers ending 1225 are selected to receive a ?50award. If you have a match please call 08712300220 quoting claim code 3100 standard rates app "),
     (1,"FreeMsg Hey there darling it's been 3 week's now and no word back! I'd like some fun you up for it still? Tb ok! XxX std chgs to send, ?1.50 to rcv")
 )
+*/
 
-/*
   val cvList = readListFromFile(spamDataPath + "/crossvalidation.dat")
   val cvSet = parseA(cvList)
-*/
+
   //Turn the characters to lower case
   val cvSetLower = uppertoLower(cvSet)
 
@@ -125,9 +125,10 @@ val cvSet = List(
  //Running time in seconds
   val timeRunning = (finalTime - inicialTime)/1000 + " seconds"
 
-  /*println("EUCLIDEAN SIMILARITY")
+  println("EUCLIDEAN SIMILARITY")
   val distanceMatrix = distanceVector(TFIDFMatrixCV, convertedMatrix)
   val positionsE = distanceMatrix(*, ::).map(row => argmin(row))
-  val categorizePositionsE = positionsE.map(x => trainingSet.drop(x).head._1).toArray.toList
-  f1Score(cvCategories, categorizePositionsE)
-  */
+  val categorizePositionsE = positionsE.map(x => trainingSetVector(x))
+
+f1Score(cvCategoriesVector, categorizePositionsE)
+

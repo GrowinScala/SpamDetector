@@ -7,7 +7,7 @@ import scala.io.Source
 
  object ProcessData {
 
-   val spamDataPath =  getClass.getResource("/spamdata").getPath
+   val spamDataPath =  getClass.getResource("/spamdata").getPath.replaceAll("%20", " ")
 
 
    // Saves a List of integers to target path
@@ -167,7 +167,7 @@ import scala.io.Source
     // Where each vector maps the proportion of the words presented in a specific sentence(Term Frequency)
     val convertedVectorList : List[DenseVector[Double]] = listOfSentences.map(x =>
                   DenseVector((mappedLisfOfWords ++ x.foldLeft(Map.empty[String, Double]){
-                      (count, word) => count + (word -> (count.getOrElse(word, 0.0) + 1.0/x.length))
+                      (count, word) => count + (word -> count.getOrElse(word, 1.0) )
                     }).values.toArray))
     //Restructure a list of vectors into a matrix
     val matrix = DenseMatrix(convertedVectorList:_*)
