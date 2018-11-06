@@ -6,7 +6,11 @@ import breeze.numerics._
 import scala.io.Source
 
  object ProcessData {
-  // Saves a List of integers to target path
+
+   val spamDataPath =  getClass.getResource("/spamdata").getPath
+
+
+   // Saves a List of integers to target path
 
   /*def saveToFileInt(pathSet: String, targetSet: List[Int])={
     val file = new File(pathSet)
@@ -44,9 +48,9 @@ import scala.io.Source
     val trainingSet = bShuffle.slice(0, sizeBuff*6)
     val crossValidation = bShuffle.slice(sizeBuff*6, sizeBuff*8)
     val testSet = bShuffle.slice(sizeBuff*8, sizeBuff*10)
-    saveToFile("src\\main\\resources\\spamdata\\trainingset.dat",trainingSet)
-    saveToFile("src\\main\\resources\\spamdata\\crossvalidation.dat",crossValidation)
-    saveToFile("src\\main\\resources\\spamdata\\testset.dat",testSet)
+    saveToFile(spamDataPath+"/trainingset.dat",trainingSet)
+    saveToFile(spamDataPath+ "/crossvalidation.dat",crossValidation)
+    saveToFile(spamDataPath +"/testset.dat",testSet)
   }
 
   // Separates line into classification and message
@@ -157,7 +161,7 @@ import scala.io.Source
 
     //Converted words into a map pointing to 0
     val mappedLisfOfWords : Map[String,Double]= listOfWords.map(x=> x->0.0).toMap
-    saveToFile("src\\main\\resources\\spamdata\\listOfWords.dat", mappedLisfOfWords.keys.toList)
+    saveToFile(spamDataPath+"/listOfWords.dat", mappedLisfOfWords.keys.toList)
 
     //Every words is atributted the value of converted sentence into a map
     // Where each vector maps the proportion of the words presented in a specific sentence(Term Frequency)
@@ -269,6 +273,7 @@ import scala.io.Source
      val truePos: Double = (scoreVector :== 3).activeSize
      val falseNeg:Double = (scoreVector :== 1).activeSize
      val falsePos:Double = (scoreVector :== 2).activeSize
+     
      2*truePos/(2*truePos+falseNeg+falsePos)
    }
 

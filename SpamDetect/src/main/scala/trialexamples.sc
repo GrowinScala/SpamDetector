@@ -5,3 +5,4 @@ import ProcessData._
 
 val x = DenseVector(1, 2, 3, 4, 5)
 val y = List(1, 2, 3, 4, 5)
+x.data(0)

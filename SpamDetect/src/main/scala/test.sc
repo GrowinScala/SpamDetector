@@ -7,15 +7,16 @@ import ProcessData._
 
 val inicialTime: Long = System.currentTimeMillis
 
+val spamDataPath =  getClass.getResource("/spamdata").getPath
+
 //import list of Stop Words provided early
-lazy val stopWordsList = readListFromFile("src\\main\\resources\\spamdata\\stopWords.txt")
+lazy val stopWordsList = readListFromFile(spamDataPath + "/stopWords.txt")
 //apply stemmer to the list of stop Words and take the common words
 val stemmedStopWords = applyStemmer(stopWordsList).distinct
 
 
   //splitA("src\\main\\resources\\spamdata\\spam.dat")
-  lazy val trainingSetLoaded = readListFromFile("src\\main\\re" +
-                             "sources\\spamdata\\trainingset.dat")
+  lazy val trainingSetLoaded = readListFromFile(spamDataPath + "/trainingset.dat")
   lazy val trainingSet = parseA(trainingSetLoaded)
   val trainingSetVector =  DenseVector(trainingSet.map(x => x._1).toArray)
 /*
@@ -33,7 +34,7 @@ val stemmedStopWords = applyStemmer(stopWordsList).distinct
   //Creates TFIDF matrix through TF matrix
   val TFIDFMatrix = makeTFIDFMatrix(TFmatrix)
   //Saves in csv file the matrix TFIDF
-  saveToFile("src\\main\\resources\\spamdata\\matrixTFIDF.csv", TFIDFMatrix)
+  saveToFile(spamDataPath +"/matrixTFIDF.csv", TFIDFMatrix)
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,7 +42,7 @@ val stemmedStopWords = applyStemmer(stopWordsList).distinct
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Read the matrix created and saved in function
- lazy val TFIDFMatrixCV = readMatrixFromFile("src\\main\\resources\\spamdata\\matrixTFIDF.csv")
+ lazy val TFIDFMatrixCV = readMatrixFromFile(spamDataPath +"/matrixTFIDF.csv")
 
 // trial of a list the would be the cross-validation Set
 
@@ -54,7 +55,7 @@ val cvSet = List(
 )
 
 /*
-  val cvList = readListFromFile("src\\main\\resources\\spamdata\\crossvalidation.dat")
+  val cvList = readListFromFile(spamDataPath + "/crossvalidation.dat")
   val cvSet = parseA(cvList)
 */
   //Turn the characters to lower case
@@ -77,8 +78,8 @@ val cvSet = List(
   val cvLength = countLength(cvSetStopWords).map(x=> x._2)
 
   //Read list of Words that were achieved in the training set data
-  lazy val listOfWords = readListFromFile("src\\main\\re" +
-  "sources\\spamdata\\listOfWords.dat")
+   val zzz = spamDataPath + "/listOfWords"
+  val listOfWords = readListFromFile(spamDataPath + "/listOfWords.dat")
 
   //maps each word with the value 0
   val mappedLisfOfWords : Map[String,Double]= listOfWords.map(x=> x->0.0).toMap
