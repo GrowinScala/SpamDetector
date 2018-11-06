@@ -167,7 +167,7 @@ import scala.io.Source
     // Where each vector maps the proportion of the words presented in a specific sentence(Term Frequency)
     val convertedVectorList : List[DenseVector[Double]] = listOfSentences.map(x =>
                   DenseVector((mappedLisfOfWords ++ x.foldLeft(Map.empty[String, Double]){
-                      (count, word) => count + (word -> count.getOrElse(word, 1.0) )
+                    (count, word) => count + (word -> (count.getOrElse(word, 0.0) + 1.0))
                     }).values.toArray))
     //Restructure a list of vectors into a matrix
     val matrix = DenseMatrix(convertedVectorList:_*)
@@ -265,16 +265,23 @@ import scala.io.Source
      convertedMatrix(::, *).map(colsCV => TFIDFMatrixCV(::, *).map(cols => EuclidianDistance(colsCV, cols)).inner).toDenseMatrix.t
    }
 
-   def f1Score(cvCategories: DenseVector[Int], catPositions: DenseVector[Int]): Double = {
+   def f1Score(cvCategories: DenseVector[Int], catPositions: DenseVector[Int]): Unit = {
      //The vector cvCategories is multiplied by 1 and summed with the vector catPositions that is multiplied by 2
      //This will help us to distinct the different cases (0,0), (0,1), (1, 0) and (1, 1)
      val scoreVector = cvCategories + catPositions*2
 
      val truePos: Double = (scoreVector :== 3).activeSize
      val falseNeg:Double = (scoreVector :== 1).activeSize
+
      val falsePos:Double = (scoreVector :== 2).activeSize
-     
-     2*truePos/(2*truePos+falseNeg+falsePos)
+     val trueNeg: Double = (scoreVector :== 0).activeSize
+     println(s"False Positive %: ${falsePos/(falsePos+trueNeg)}")
+     println(s"False Positive: ${falsePos}")
+
+     println(s"Accuracy (% of predictions that were correct): ${(truePos+trueNeg)/cvCategories.activeSize}")
+     println(s"Precision (% of emails classified as spam that were actually spam): ${truePos/(truePos+falsePos)}")
+     println(s"Recall (% of spam emails that were predicted correctly): ${truePos/(truePos+falseNeg)}")
+     println(s"F1-score: ${2*truePos/(2*truePos+falseNeg+falsePos)}")
    }
 
    //The code below was constructed to test a different approach to the cosine similarity

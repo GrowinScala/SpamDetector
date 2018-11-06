@@ -78,7 +78,6 @@ val cvSet = List(
   val cvLength = countLength(cvSetStopWords).map(x=> x._2)
 
   //Read list of Words that were achieved in the training set data
-   val zzz = spamDataPath + "/listOfWords"
   val listOfWords = readListFromFile(spamDataPath + "/listOfWords.dat")
 
   //maps each word with the value 0
@@ -109,26 +108,24 @@ val cvSet = List(
   val valuesC :DenseVector[Double] = cosineMatrix(*, ::).map(row => max(row))
 
 
-  val categorizePositions = positionsC.map(x => trainingSetVector(x))
+  //val categorizePositions = positionsC.map(x => trainingSetVector(x))
 
 
   //val categorizePositions = positionsC.map(x => trainingSet.drop(x).head._1).toArray.toList
-  /*val categorizePositions = valuesC.map(x => if(x > 0.01){
-    trainingSet.drop(positionsC(valuesC.toArray.toList.indexOf(x))).head._1
-  } else 0)
-  */
+
+  val categorizePositions =  DenseVector((0 until valuesC.length).map(i=> if (valuesC.data(i)<0.1) 0
+  else trainingSetVector.data(positionsC.data(i))).toArray)
 
   f1Score(cvCategoriesVector, categorizePositions)
 
-  val finalTime = System.currentTimeMillis
-
- //Running time in seconds
-  val timeRunning = (finalTime - inicialTime)/1000 + " seconds"
-
+/*
   println("EUCLIDEAN SIMILARITY")
   val distanceMatrix = distanceVector(TFIDFMatrixCV, convertedMatrix)
   val positionsE = distanceMatrix(*, ::).map(row => argmin(row))
   val categorizePositionsE = positionsE.map(x => trainingSetVector(x))
 
 f1Score(cvCategoriesVector, categorizePositionsE)
-
+*/
+//Running time in seconds
+val finalTime = System.currentTimeMillis
+val timeRunning = (finalTime - inicialTime)/1000 + " seconds"
