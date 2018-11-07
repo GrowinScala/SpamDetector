@@ -75,7 +75,7 @@ val cvSet = List(
 
   //Remove stopwords from training set
   val cvSetStopWords = takeStopWords(stemmedStopWords, cvStemmed)
-  val cvLength = countLength(cvSetStopWords).map(x=> x._2)
+
 
   //Read list of Words that were achieved in the training set data
   val listOfWords = readListFromFile(spamDataPath + "/listOfWords.dat")
@@ -106,17 +106,27 @@ val cvSet = List(
   println("COSINE SIMILARITY")
   val positionsC :DenseVector[Int] = cosineMatrix(*, ::).map(row => argmax(row))
   val valuesC :DenseVector[Double] = cosineMatrix(*, ::).map(row => max(row))
-
+  val cvLength = countLength(cvSetStopWords).map(x=> x._2)
 
   //val categorizePositions = positionsC.map(x => trainingSetVector(x))
 
 
-  //val categorizePositions = positionsC.map(x => trainingSet.drop(x).head._1).toArray.toList
+  // val categorizePositions = positionsC.map(x => trainingSet.drop(x).head._1)
+  //val distanceMatrix = distanceVector(TFIDFMatrixCV, convertedMatrix)
+  //val positionsE = distanceMatrix(*, ::).map(row => argmin(row))
 
-  val categorizePositions =  DenseVector((0 until valuesC.length).map(i=> if (valuesC.data(i)<0.1) 0
+  val categorizePositions =  DenseVector((0 until valuesC.length).map(i=>
+
+  if((valuesC.data(i) < 0.45 && ( cvLength.drop(i).head < 8)) || trainingSet.drop(positionsC.data(i)).head._2.contains("TRIPLEDOT")) 0
+  //else if (valuesC.data(i) < 0.4 && ( cvLength.drop(i).head < 8)) 0
+  //else if (valuesC.data(i) < 0.35 && ( cvLength.drop(i).head == 18)) 1
   else trainingSetVector.data(positionsC.data(i))).toArray)
 
-  f1Score(cvCategoriesVector, categorizePositions)
+  val numberSmallCosine = (0 until valuesC.length).map(i=>if(valuesC.data(i) < 0.25 && ( cvLength.drop(i).head < 8)) trainingSetVector.data(positionsC.data(i)))
+  numberSmallCosine.count(x=> x==1) + " Spam"
+  numberSmallCosine.count(x=> x==0) + " Ham"
+
+evaluationMetrics(cvCategoriesVector, categorizePositions)
 
 /*
   println("EUCLIDEAN SIMILARITY")
@@ -124,8 +134,9 @@ val cvSet = List(
   val positionsE = distanceMatrix(*, ::).map(row => argmin(row))
   val categorizePositionsE = positionsE.map(x => trainingSetVector(x))
 
-f1Score(cvCategoriesVector, categorizePositionsE)
+  f1Score(cvCategoriesVector, categorizePositionsE)
 */
+
 //Running time in seconds
 val finalTime = System.currentTimeMillis
 val timeRunning = (finalTime - inicialTime)/1000 + " seconds"

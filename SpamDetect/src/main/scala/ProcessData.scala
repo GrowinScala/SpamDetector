@@ -161,6 +161,7 @@ import scala.io.Source
 
     //Converted words into a map pointing to 0
     val mappedLisfOfWords : Map[String,Double]= listOfWords.map(x=> x->0.0).toMap
+
     saveToFile(spamDataPath+"/listOfWords.dat", mappedLisfOfWords.keys.toList)
 
     //Every words is atributted the value of converted sentence into a map
@@ -256,16 +257,16 @@ import scala.io.Source
      convertedAux(listOfCVintersected, mappedLisfOfWords).t
    }
 
-   def EuclidianDistance(x: DenseVector[Double], y: DenseVector[Double]): Double = {
+   def euclidianDistance(x: DenseVector[Double], y: DenseVector[Double]): Double = {
      sqrt((x-y) dot (x-y))
    }
 
   // Applies Euclidian Distance to every coulunm of both matrices
    def distanceVector(TFIDFMatrixCV: DenseMatrix[Double], convertedMatrix: DenseMatrix[Double]): DenseMatrix[Double] = {
-     convertedMatrix(::, *).map(colsCV => TFIDFMatrixCV(::, *).map(cols => EuclidianDistance(colsCV, cols)).inner).toDenseMatrix.t
+     convertedMatrix(::, *).map(colsCV => TFIDFMatrixCV(::, *).map(cols => euclidianDistance(colsCV, cols)).inner).toDenseMatrix.t
    }
 
-   def f1Score(cvCategories: DenseVector[Int], catPositions: DenseVector[Int]): Unit = {
+   def evaluationMetrics(cvCategories: DenseVector[Int], catPositions: DenseVector[Int]): Unit = {
      //The vector cvCategories is multiplied by 1 and summed with the vector catPositions that is multiplied by 2
      //This will help us to distinct the different cases (0,0), (0,1), (1, 0) and (1, 1)
      val scoreVector = cvCategories + catPositions*2
