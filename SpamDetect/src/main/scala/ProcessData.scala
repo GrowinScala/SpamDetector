@@ -130,7 +130,7 @@ import scala.io.Source
         .replaceAll("(\\p{Punct}+|\\W)((mon)|(monday)|(tue)|(tuesday)|(wed)|(wednesday)|(thu)|(thursday)|(friday)|(saturday)|(sunday))(\\p{Punct}+|\\W)"," ")
         .replaceAll("(\\p{Punct}+|\\W)((jan)|(january)|(feb)|(february)|(mar)|(march)|(apr)|(april)|(may)|(jun)|(june)|(jul)|(july)" +
           "|(aug)|(august)|(sep)|(september)|(oct)|(october)|(nov)|(november)|(dec)|(december))(\\p{Punct}+|\\W)"," ")
-        .replaceAll("(\\d+\\W*pound\\w*)|(\\d+\\W*dollar\\w*)|(\\d+\\W*cash\\w*)|(\\d+\\W*euro\\w*)|(\\d+\\W*p(\\s|$))", " MONEY ")
+        .replaceAll("(\\d+\\W*pound\\w*)|(\\d+\\W*dollar\\w*)|(\\d+\\W*cash\\w*)|(\\d+\\W*euro\\w*)|(\\d+\\W*p(\\s|$)|(\\d+pp))|(\\?\\d+|[\\.,\\,]\\d+)", " MONEY ")
         .replaceAll("(?:(?:31(\\/|-|\\.)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(\\/|-|\\.)" +
           "(?:0?[1,3-9]|1[0-2])\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})|(?:29(\\/|-|\\.)0?2\\3(?:(?:" +
           "(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))" +
@@ -258,10 +258,14 @@ import scala.io.Source
    }
 
    def euclidianDistance(x: DenseVector[Double], y: DenseVector[Double]): Double = {
-     sqrt((x-y) dot (x-y))
+     def dotProduct(x: DenseVector[Double], y: DenseVector[Double]): Double = {
+       x dot y
+     }
+     val xy = x-y
+     sqrt(dotProduct(xy, xy))
    }
 
-  // Applies Euclidian Distance to every coulunm of both matrices
+  // Applies Euclidean Distance to every collumn of both matrices
    def distanceVector(TFIDFMatrixCV: DenseMatrix[Double], convertedMatrix: DenseMatrix[Double]): DenseMatrix[Double] = {
      convertedMatrix(::, *).map(colsCV => TFIDFMatrixCV(::, *).map(cols => euclidianDistance(colsCV, cols)).inner).toDenseMatrix.t
    }
@@ -295,15 +299,16 @@ import scala.io.Source
      println(s"F1-score: ${2*truePos/(2*truePos+falseNeg+falsePos)}")
    }
 
+
    def containsString(stringList : List[String], targetStringList : List[String]): Boolean={
-   stringList.intersect(targetStringList).nonEmpty
+     stringList.intersect(targetStringList).length >= 3
    }
 
-   def decisionTree(categorizePositionsE: DenseVector[Int], listOfCVintersected : List[List[String]], probSpamList:List[String], specificKeywords : List[String]): DenseVector[Int]={
+   def decisionTree(categorizePositionsE: DenseVector[Int], listOfCVintersected : List[List[String]], specificKeywords : List[String]): DenseVector[Int]={
 
     val categorizedWithList = categorizePositionsE.data.zip(listOfCVintersected)
     val stemmedSpecificKeywords = applyStemmer(specificKeywords)
-    val newCategorization = categorizedWithList.map(x=> if( x._1 == 0 && containsString(x._2,probSpamList) && containsString(x._2,stemmedSpecificKeywords)) 1 else x._1)
+    val newCategorization = categorizedWithList.map(x=> if( x._1 == 0 && containsString(x._2,stemmedSpecificKeywords)) 1 else x._1)
 
     DenseVector(newCategorization)
    }
@@ -318,7 +323,6 @@ import scala.io.Source
 
        if(numberMax == 1) auxVector(indexMax) +: Seq()
        else auxVector(indexMax) +: auxValues(DenseVector.vertcat(auxVector.slice(0,indexMax),auxVector.slice(indexMax+1,auxVector.length)),numberMax-1)
-
      }
      cosineVector.map(x => auxValues(x,numberMax))
    }

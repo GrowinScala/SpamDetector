@@ -123,13 +123,8 @@ val cvSet = List(
   //else if (valuesC.data(i) < 0.4 && ( cvLength.drop(i).head < 8)) 0
   //else if (valuesC.data(i) < 0.35 && ( cvLength.drop(i).head == 18)) 1
   else trainingSetVector.data(positionsC.data(i))).toArray)
-  val specificKeywords = List("send","ringtone","free","accident","awards","dating","won","services","lottery","mins","video","visit","delivery","cash","congrats","win","claim","prize","subscribe")
-
-  /*val numberSmallCosine = (0 until valuesC.length).map(i=>if(valuesC.data(i) < 0.25 && ( cvLength.drop(i).head < 8)) trainingSetVector.data(positionsC.data(i)))
-  numberSmallCosine.count(x=> x==1) + " Spam"
-  numberSmallCosine.count(x=> x==0) + " Ham"
-  */
-  val finalCategorizationC = decisionTree(categorizePositions,listOfCVintersected,List("WEBSITE","PHONENUMBER","PER"),specificKeywords)
+  val specificKeywords = List("WEBSITE","PHONENUMBER","MONEY","PER", "reply", "text", "txt", "send", "poly", "ringtone","free", "freemsg", "click","chat","offer", "won","service","lottery","cash","congrats","win","claim","prize","subscribe", "unsubscribe", "order", "call", "dial", "buy")
+  val finalCategorizationC = decisionTree(categorizePositions,listOfCVintersected, specificKeywords)
 
 
   evaluationMetrics(cvCategoriesVector, finalCategorizationC)
@@ -139,7 +134,7 @@ val cvSet = List(
   val distanceMatrix = distanceVector(TFIDFMatrixCV, convertedMatrix)
   val positionsE = distanceMatrix(*, ::).map(row => argmin(row))
   val categorizePositionsE = positionsE.map(x => trainingSetVector(x))
-  val finalCategorizationE = decisionTree(categorizePositionsE,listOfCVintersected,List("WEBSITE","PHONENUMBER","PER"),specificKeywords)
+  val finalCategorizationE = decisionTree(categorizePositionsE,listOfCVintersected,specificKeywords)
 //listOfCVintersected
 // == 0 && trainingSetStopWords.drop(x).head._2.contains("WEBSITE"))
   evaluationMetrics(cvCategoriesVector, finalCategorizationE)
