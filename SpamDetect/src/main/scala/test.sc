@@ -51,9 +51,10 @@ val cvSet = List(
     (0,"I hope your pee burns tonite."),
     (0,"K, wat s tht incident?"),
     (1,"Todays Voda numbers ending 1225 are selected to receive a ?50award. If you have a match please call 08712300220 quoting claim code 3100 standard rates app "),
-    (1,"FreeMsg Hey there darling it's been 3 week's now and no word back! I'd like some fun you up for it still? Tb ok! XxX std chgs to send, ?1.50 to rcv")
-)
-*/
+    (1,"FreeMsg Hey there darling it's been 3 week's now and no word back! I'd like some fun you up for it still? Tb ok! XxX std chgs to send, ?1.50 to rcv"),
+    (0,"staff.science.nus.edu.sg/~phyhcmk/teaching/pc1323")
+)*/
+
 
   val cvList = readListFromFile(spamDataPath + "/crossvalidation.dat")
   val cvSet = parseA(cvList)
@@ -115,27 +116,34 @@ val cvSet = List(
   //val distanceMatrix = distanceVector(TFIDFMatrixCV, convertedMatrix)
   //val positionsE = distanceMatrix(*, ::).map(row => argmin(row))
 
+
   val categorizePositions =  DenseVector((0 until valuesC.length).map(i=>
 
   if((valuesC.data(i) < 0.45 && ( cvLength.drop(i).head < 8)) || trainingSet.drop(positionsC.data(i)).head._2.contains("TRIPLEDOT")) 0
   //else if (valuesC.data(i) < 0.4 && ( cvLength.drop(i).head < 8)) 0
   //else if (valuesC.data(i) < 0.35 && ( cvLength.drop(i).head == 18)) 1
   else trainingSetVector.data(positionsC.data(i))).toArray)
+  val specificKeywords = List("send","ringtone","free","accident","awards","dating","won","services","lottery","mins","video","visit","delivery","cash","congrats","win","claim","prize","subscribe")
 
-  val numberSmallCosine = (0 until valuesC.length).map(i=>if(valuesC.data(i) < 0.25 && ( cvLength.drop(i).head < 8)) trainingSetVector.data(positionsC.data(i)))
+  /*val numberSmallCosine = (0 until valuesC.length).map(i=>if(valuesC.data(i) < 0.25 && ( cvLength.drop(i).head < 8)) trainingSetVector.data(positionsC.data(i)))
   numberSmallCosine.count(x=> x==1) + " Spam"
   numberSmallCosine.count(x=> x==0) + " Ham"
+  */
+  val finalCategorizationC = decisionTree(categorizePositions,listOfCVintersected,List("WEBSITE","PHONENUMBER","PER"),specificKeywords)
 
-evaluationMetrics(cvCategoriesVector, categorizePositions)
 
-/*
+  evaluationMetrics(cvCategoriesVector, finalCategorizationC)
+
+
   println("EUCLIDEAN SIMILARITY")
   val distanceMatrix = distanceVector(TFIDFMatrixCV, convertedMatrix)
   val positionsE = distanceMatrix(*, ::).map(row => argmin(row))
   val categorizePositionsE = positionsE.map(x => trainingSetVector(x))
+  val finalCategorizationE = decisionTree(categorizePositionsE,listOfCVintersected,List("WEBSITE","PHONENUMBER","PER"),specificKeywords)
+//listOfCVintersected
+// == 0 && trainingSetStopWords.drop(x).head._2.contains("WEBSITE"))
+  evaluationMetrics(cvCategoriesVector, finalCategorizationE)
 
-  f1Score(cvCategoriesVector, categorizePositionsE)
-*/
 
 //Running time in seconds
 val finalTime = System.currentTimeMillis

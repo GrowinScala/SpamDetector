@@ -271,18 +271,41 @@ import scala.io.Source
      //This will help us to distinct the different cases (0,0), (0,1), (1, 0) and (1, 1)
      val scoreVector = cvCategories + catPositions*2
 
+     val falsePosIndex =  (0 until scoreVector.length).map(i =>  if(scoreVector.data(i) == 2) i  ).toSet
+     val falseNegIndex =  (0 until scoreVector.length).map(i =>  if(scoreVector.data(i) == 1) i  ).toSet
+     val truePosIndex =  (0 until scoreVector.length).map(i =>  if(scoreVector.data(i) == 3) i  ).toSet
+     val trueNegIndex =  (0 until scoreVector.length).map(i =>  if(scoreVector.data(i) == 0) i  ).toSet
+
      val truePos: Double = (scoreVector :== 3).activeSize
      val falseNeg:Double = (scoreVector :== 1).activeSize
 
      val falsePos:Double = (scoreVector :== 2).activeSize
      val trueNeg: Double = (scoreVector :== 0).activeSize
      println(s"False Positive %: ${falsePos/(falsePos+trueNeg)}")
-     println(s"False Positive: ${falsePos}")
+     println(s"False Positive: $falsePos")
+
+     println(s"False Positive indexes: $falsePosIndex")
+     println(s"False Negative indexes: $falseNegIndex")
+     println(s"True Positive indexes: $truePosIndex")
+     println(s"True Negative indexes: $trueNegIndex")
 
      println(s"Accuracy (% of predictions that were correct): ${(truePos+trueNeg)/cvCategories.activeSize}")
      println(s"Precision (% of emails classified as spam that were actually spam): ${truePos/(truePos+falsePos)}")
      println(s"Recall (% of spam emails that were predicted correctly): ${truePos/(truePos+falseNeg)}")
      println(s"F1-score: ${2*truePos/(2*truePos+falseNeg+falsePos)}")
+   }
+
+   def containsString(stringList : List[String], targetStringList : List[String]): Boolean={
+   stringList.intersect(targetStringList).nonEmpty
+   }
+
+   def decisionTree(categorizePositionsE: DenseVector[Int], listOfCVintersected : List[List[String]], probSpamList:List[String], specificKeywords : List[String]): DenseVector[Int]={
+
+    val categorizedWithList = categorizePositionsE.data.zip(listOfCVintersected)
+    val stemmedSpecificKeywords = applyStemmer(specificKeywords)
+    val newCategorization = categorizedWithList.map(x=> if( x._1 == 0 && containsString(x._2,probSpamList) && containsString(x._2,stemmedSpecificKeywords)) 1 else x._1)
+
+    DenseVector(newCategorization)
    }
 
    //The code below was constructed to test a different approach to the cosine similarity
