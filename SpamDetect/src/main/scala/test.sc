@@ -4,6 +4,8 @@ import breeze.numerics._
 import breeze.plot._
 import ProcessData._
 
+import scala.util.Random
+
 
 val inicialTime: Long = System.currentTimeMillis
 
@@ -47,14 +49,15 @@ val stemmedStopWords = applyStemmer(stopWordsList).distinct
 // trial of a list the would be the cross-validation Set
 /*
 val cvSet = List(
+    (0,"You still at the game?"),
     (1, "Congrats congrat 2 mobile 3G Videophones R yours. call 09063458130 now! videochat wid ur mates, play java games, Dload polypH music, noline rentl. bx420. ip4. 5we. 150p"),
     (0,"I hope your pee burns tonite."),
     (0,"K, wat s tht incident?"),
     (1,"Todays Voda numbers ending 1225 are selected to receive a ?50award. If you have a match please call 08712300220 quoting claim code 3100 standard rates app "),
     (1,"FreeMsg Hey there darling it's been 3 week's now and no word back! I'd like some fun you up for it still? Tb ok! XxX std chgs to send, ?1.50 to rcv"),
     (0,"staff.science.nus.edu.sg/~phyhcmk/teaching/pc1323")
-)*/
-
+)
+*/
 
   val cvList = readListFromFile(spamDataPath + "/crossvalidation.dat")
   val cvSet = parseA(cvList)
@@ -109,22 +112,13 @@ val cvSet = List(
   val valuesC :DenseVector[Double] = cosineMatrix(*, ::).map(row => max(row))
   val cvLength = countLength(cvSetStopWords).map(x=> x._2)
 
-  //val categorizePositions = positionsC.map(x => trainingSetVector(x))
-
-
-  // val categorizePositions = positionsC.map(x => trainingSet.drop(x).head._1)
-  //val distanceMatrix = distanceVector(TFIDFMatrixCV, convertedMatrix)
-  //val positionsE = distanceMatrix(*, ::).map(row => argmin(row))
-
-
   val categorizePositions =  DenseVector((0 until valuesC.length).map(i=>
 
-  if((valuesC.data(i) < 0.45 && ( cvLength.drop(i).head < 8)) || trainingSet.drop(positionsC.data(i)).head._2.contains("TRIPLEDOT")) 0
-  //else if (valuesC.data(i) < 0.4 && ( cvLength.drop(i).head < 8)) 0
-  //else if (valuesC.data(i) < 0.35 && ( cvLength.drop(i).head == 18)) 1
+  if((valuesC.data(i) < 0.40 && ( cvLength.drop(i).head < 8) ) || cvLength.drop(i).head <2 ) 0
   else trainingSetVector.data(positionsC.data(i))).toArray)
-  val specificKeywords = List("WEBSITE","PHONENUMBER","MONEY","PER", "reply", "text", "txt", "send", "poly", "ringtone","free", "freemsg", "click","chat","offer", "won","service","lottery","cash","congrats","win","claim","prize","subscribe", "unsubscribe", "order", "call", "dial", "buy")
-  val finalCategorizationC = decisionTree(categorizePositions,listOfCVintersected, specificKeywords)
+  val specificKeywords = List("WEBSITE", "PHONENUMBER" ,"MONEY","PER", "reply", "text", "send","sent","ringtone","free", "freemsg", "click","chat","offer", "won","service","lottery","cash","congrats","win","claim","prize","subscribe", "unsubscribe", "order", "call", "dial", "buy","link")
+
+  val finalCategorizationC = decisionTree(categorizePositions,listOfCVintersected,specificKeywords)
 
 
   evaluationMetrics(cvCategoriesVector, finalCategorizationC)
@@ -133,13 +127,30 @@ val cvSet = List(
   println("EUCLIDEAN SIMILARITY")
   val distanceMatrix = distanceVector(TFIDFMatrixCV, convertedMatrix)
   val positionsE = distanceMatrix(*, ::).map(row => argmin(row))
-  val categorizePositionsE = positionsE.map(x => trainingSetVector(x))
+  val valuesE :DenseVector[Double] = cosineMatrix(*, ::).map(row => min(row))
+
+  val categorizePositionsE =  DenseVector((0 until valuesE.length).map(i=>
+
+  if((valuesE.data(i) < 0.40 && ( cvLength.drop(i).head < 8) ) || cvLength.drop(i).head <2 ) 0
+  else trainingSetVector.data(positionsE.data(i))).toArray)
+
   val finalCategorizationE = decisionTree(categorizePositionsE,listOfCVintersected,specificKeywords)
-//listOfCVintersected
-// == 0 && trainingSetStopWords.drop(x).head._2.contains("WEBSITE"))
+  //listOfCVintersected
+  // == 0 && trainingSetStopWords.drop(x).head._2.contains("WEBSITE"))
   evaluationMetrics(cvCategoriesVector, finalCategorizationE)
 
+  val superFinalCategorization = (finalCategorizationC + finalCategorizationE*2).map(x=>
+    x match {
+      case 0 => 0
+      case 1 => 1
+      case 2 => 0
+      case 3 => 1
+    }
+  )
 
-//Running time in seconds
-val finalTime = System.currentTimeMillis
-val timeRunning = (finalTime - inicialTime)/1000 + " seconds"
+ println("FINAL METRICS")
+ evaluationMetrics(cvCategoriesVector,superFinalCategorization)
+
+  //Running time in seconds
+  val finalTime = System.currentTimeMillis
+  val timeRunning = (finalTime - inicialTime)/1000 + " seconds"

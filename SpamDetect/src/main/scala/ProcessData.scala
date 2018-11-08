@@ -122,7 +122,7 @@ import scala.io.Source
   //ex: Replace 910000000(digits of mobile number) -> "*phonenumber*"
   def replaceOverall(targetSet:List[(Int,String)]):List[(Int,String)]={
       targetSet.map(x => (x._1,x._2
-        .replaceAll("(\\S*www\\.\\S*)|(\\S*\\.com\\S*)", " WEBSITE ")
+        .replaceAll("(\\S*www\\.\\S*)|(\\S*\\.com\\S*)|(\\S+\\/\\S+\\/\\S+\\/\\S+)", " WEBSITE ")
         .replaceAll("(:\\p{Punct}+)|(:\\w\\s+)"," SMILE ")
         .replaceAll("\\.{3}"," TRIPLEDOT ")
         .replaceAll("\\d{5,}", " PHONENUMBER ")
