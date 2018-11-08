@@ -300,6 +300,8 @@ import scala.io.Source
    }
 
 
+
+
    def containsString(stringList : List[String], targetStringList : List[String]): Boolean={
      stringList.intersect(targetStringList).length >= 3
    }
