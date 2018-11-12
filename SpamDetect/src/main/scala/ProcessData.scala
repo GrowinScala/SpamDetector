@@ -7,6 +7,7 @@ import scala.io.Source
 
  object ProcessData {
 
+   //TODO: Use URL encoding here instead of the regex:
    val spamDataPath =  getClass.getResource("/spamdata").getPath.replaceAll("%20", " ")
 
 
@@ -22,7 +23,7 @@ import scala.io.Source
   }*/
 
   // Saves a List of something to target path
-  def saveToFile[T](pathName: String, targetSet: List[T]): Unit ={
+   def saveToFile[T](pathName: String, targetSet: List[T]): Unit ={
     val file = new File(pathName)
     val bw = new BufferedWriter(new FileWriter(file))
       for (line <- targetSet){
@@ -94,9 +95,13 @@ import scala.io.Source
     allSet.map(x => (x._1, x._2.split(" ").length))
   }
 
-  //Delete all the punctuation presented in every text message (apostrophe and hyphens are maintained)
-  def takePunctuation(targetSet:List[(Int,String)]):List[(Int,String)]=
-    targetSet.map(x=> (x._1,x._2.replaceAll("\\p{Punct}", " ")))
+   /**
+     * Delete all the punctuation presented in every text message (apostrophe and hyphens are maintained)
+     * @param targetSet
+     * @return
+     */
+   def takePunctuation(targetSet:List[(Int,String)]):List[(Int,String)]=
+     targetSet.map(x=> (x._1,x._2.replaceAll("\\p{Punct}", " ")))
 
   //Separates each sentence by the words that compose it in different strings
   def tokenization(targetMessage:String): List[String] = {
@@ -120,17 +125,17 @@ import scala.io.Source
 
   //Simplify data by grouping in a *word* (Strings must be lower case)
   //ex: Replace 910000000(digits of mobile number) -> "*phonenumber*"
-  def replaceOverall(targetSet:List[(Int,String)]):List[(Int,String)]={
-      targetSet.map(x => (x._1,x._2
+  def replaceOverall(targetSet:List[(Int,String)]): List[(Int,String)] = {
+      targetSet.map(x => (x._1, x._2
         .replaceAll("(\\S*www\\.\\S*)|(\\S*\\.com\\S*)|(\\S+\\/\\S+\\/\\S+\\/\\S+)", " WEBSITE ")
         .replaceAll("(:\\p{Punct}+)|(:\\w\\s+)"," SMILE ")
         .replaceAll("\\.{3}"," TRIPLEDOT ")
-        .replaceAll("\\d{5,}", " PHONENUMBER ")
+        .replaceAll("\\d{5,}|(\\d\\s*){11}\n", " PHONENUMBER ")
         .replaceAll("\\w{1,4}\\/\\w{1,4}"," PER ")
         .replaceAll("(\\p{Punct}+|\\W)((mon)|(monday)|(tue)|(tuesday)|(wed)|(wednesday)|(thu)|(thursday)|(friday)|(saturday)|(sunday))(\\p{Punct}+|\\W)"," ")
         .replaceAll("(\\p{Punct}+|\\W)((jan)|(january)|(feb)|(february)|(mar)|(march)|(apr)|(april)|(may)|(jun)|(june)|(jul)|(july)" +
           "|(aug)|(august)|(sep)|(september)|(oct)|(october)|(nov)|(november)|(dec)|(december))(\\p{Punct}+|\\W)"," ")
-        .replaceAll("(\\d+\\W*pound\\w*)|(\\d+\\W*dollar\\w*)|(\\d+\\W*cash\\w*)|(\\d+\\W*euro\\w*)|(\\d+\\W*p(\\s|$)|(\\d+pp))|(\\?\\d+|[\\.,\\,]\\d+)", " MONEY ")
+        .replaceAll("(\\d+\\W*pence\\w*)|(\\d+\\W*pound\\w*)|(\\d+\\W*dollar\\w*)|(\\d+\\W*cash\\w*)|(\\d+\\W*euro\\w*)|(\\d+\\W*p(\\s|$)|(\\d+pp))|(\\?\\d+|[\\.,\\,]\\d+)", " MONEY ")
         .replaceAll("(?:(?:31(\\/|-|\\.)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(\\/|-|\\.)" +
           "(?:0?[1,3-9]|1[0-2])\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})|(?:29(\\/|-|\\.)0?2\\3(?:(?:" +
           "(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))" +
@@ -352,4 +357,13 @@ import scala.io.Source
 
    }
    */
+
+   def containsMoreString(thresh: Int, targetString: List[String], specificKeywords:List[String]): Boolean={
+     val stemmedSpecificKeywords = applyStemmer(specificKeywords)
+     targetString.intersect(stemmedSpecificKeywords).length >= thresh
+   }
+   def containsLessString(thresh: Int, targetString: List[String], specificKeywords:List[String]):Boolean={
+     val stemmedSpecificKeywords = applyStemmer(specificKeywords)
+     targetString.intersect(stemmedSpecificKeywords).length <= thresh
+   }
 }

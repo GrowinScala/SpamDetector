@@ -121,7 +121,6 @@ val categorizePositions =  DenseVector((0 until valuesC.length).map(i=>
 
   //If cosine similatiry is less then 0.4 and the correspondent sentence has less than 8 words it´s classified has ham
   if(valuesC.data(i) < 0.40 && ( cvLength.drop(i).head < 8) ) 0
-
   else trainingSetVector.data(positionsC.data(i))).toArray)
 
 //Performs evaluation metrics between the real categorization value and the predicted value
