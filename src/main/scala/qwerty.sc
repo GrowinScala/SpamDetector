@@ -8,12 +8,7 @@ import breeze.linalg._
 import scala.io.Source
 //import ProcessingInformation.ProcessData._
 import DecisionTrees.DecisionTree._
-import scalariform.formatter.preferences._
+import java.net.URLDecoder
 
-
-val fileName = new FilesName()
-val dataProcess = new ProcessData()
-breeze.linalg.csvread(new File(fileName.fileMatrixTFIDF),' ')
-dataProcess.readListFromFile(fileName.fileListOfWords)
-//breeze.linalg.csvread(new File(fileName.fileMatrixTFIDF), separator = ' ')
-//Source.fromFile(fileName.fileListOfWords).getLines().toList
+val result = URLDecoder.decode("Rui Valente")
+//getClass.getResource("/spamdata").getPath

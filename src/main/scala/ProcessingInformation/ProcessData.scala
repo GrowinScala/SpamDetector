@@ -13,9 +13,6 @@ class ProcessData {
   val regex = new Regex()
   val specificWords = new SpecificWords()
 
-  //TODO: Use URL encoding here instead of the regex:
-  //val spamDataPath =  getClass.getResource("/spamdata").getPath.replaceAll("%20", " ")
-
   // Saves a List of something to target path
   def saveToFile[T](pathName: String, targetSet: List[T]): Unit = {
     val file = new File(pathName)

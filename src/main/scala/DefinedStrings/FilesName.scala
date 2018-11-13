@@ -1,8 +1,9 @@
 package DefinedStrings
-
+import java.net.URLDecoder
 class FilesName {
 
-  val spamDataPath = getClass.getResource("/spamdata").getPath.replaceAll("%20", " ")
+  val spamDataPath = URLDecoder.decode(getClass.getResource("/spamdata").getPath)
+    //.replaceAll("%20", " ")
   val fileCrossValidation = spamDataPath + "/crossvalidation.dat"
   val fileListOfWords = spamDataPath + "/listOfWords.dat"
   val fileMatrixTFIDF = "C:/Users/PedroLuis/Desktop/Scala/SpamDetector/src/main/resources/spamdata/matrixTFIDF.csv"
