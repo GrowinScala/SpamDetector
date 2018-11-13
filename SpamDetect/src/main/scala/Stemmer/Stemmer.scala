@@ -1,3 +1,5 @@
+package Stemmer
+
 object Stemmer {
     def stem(word: String): String = {
       // Deal with plurals and past participles
@@ -210,4 +212,3 @@ object Stemmer {
     private implicit def emptySuffixPattern: Condition ⇒ Pattern = Pattern(_, "")
     private implicit def suffixedStemBuilder: String ⇒ StemBuilder = suffixStemBuilder
   }
-

@@ -1,4 +1,5 @@
 
+import DecisionTrees.{CosineTree, EuclideanTree}
 import DefinedStrings.{FilesName, SpecificWords}
 import ProcessingInformation.{ProcessData, ProcessSet}
 import breeze.linalg._
@@ -20,7 +21,7 @@ val TFIDFMatrix = dataProcess.makeTFIDFMatrix(TFmatrix)
 dataProcess.saveToFile(fileName.fileMatrixTFIDF , TFIDFMatrix)
 
 //Read the matrix created and saved in function
- lazy val TFIDFMatrixCV = dataProcess.readMatrixFromFile(fileName.fileMatrixTFIDF )
+  lazy val TFIDFMatrixCV = dataProcess.readMatrixFromFile(fileName.fileMatrixTFIDF )
 
   val crossValidationSet = new ProcessSet(fileName.fileStopWords,fileName.fileCrossValidation)
 
@@ -31,7 +32,7 @@ dataProcess.saveToFile(fileName.fileMatrixTFIDF , TFIDFMatrix)
   dataProcess.evaluationMetrics(crossValidationSet.setVector, decisionT)
 
 
-  //Read list of Words that were achieved in the training set data
+//Read list of Words that were achieved in the training set data
   val listOfWords = dataProcess.readListFromFile(fileName.fileListOfWords)
 
   //maps each word with the value 0
@@ -49,74 +50,16 @@ dataProcess.saveToFile(fileName.fileMatrixTFIDF , TFIDFMatrix)
   //maps the proportion of the words presented in a specific sentence (Term Frequency)
   val convertedMatrix: DenseMatrix[Double] = dataProcess.convertedMatrixList(listOfCVintersected, mappedLisfOfWords)
 
+  val cosineTree = new CosineTree(TFIDFMatrixCV,convertedMatrix,listOfCVintersected, trainingSet)
+  dataProcess.evaluationMetrics(crossValidationSet.setVector, cosineTree.finalCategorizationC)
+
+  val euclideanTree = new EuclideanTree(TFIDFMatrixCV,convertedMatrix,listOfCVintersected, trainingSet)
+  dataProcess.evaluationMetrics(crossValidationSet.setVector, euclideanTree.finalCategorizationE)
 
 
+   //dataProcess.evaluationMetrics(crossValidationSet.setVector, finalCategorizationE)
 
-  //For every vector of the cosineVector list, it is calculated the position of the maximum value.
-  //This position corresponds to the most similar string of training data with the string of CV data considered
-  println("COSINE SIMILARITY")
-
-  //This function will calculate the cosine similarity between the convertedMatrix and TFIDF Matrix
-  //It will return a matrix where each row represents the different values between a string j of cross validation and the
-  //various strings of the training set
-  val cosineMatrix = dataProcess.cosineVector(TFIDFMatrixCV, convertedMatrix)
-  val positionsC :DenseVector[Int] = cosineMatrix(*, ::).map(row => argmax(row))
-  val valuesC :DenseVector[Double] = cosineMatrix(*, ::).map(row => max(row))
-  val cvLength = dataProcess.countLength(cvSetStopWords).map(x=> x._2)
-  val categorizePositionsC = positionsC.map(x => trainingSet.setVector(x))
-
-  val finalCategorizationC =  DenseVector((0 until valuesC.length).map(i=>
-
-  if(categorizePositionsC.data(i) == 0 && valuesC.data(i) < 0.45 && dataProcess.containsMoreString(3, listOfCVintersected.drop(i).head, specificKeywords)) 1
-  else if(categorizePositionsC.data(i) == 0 && valuesC.data(i) < 0.70 && dataProcess.containsMoreString(4, listOfCVintersected.drop(i).head, specificKeywords)) 1
-  else if (categorizePositionsC.data(i) == 1 && valuesC.data(i) < 0.65 && dataProcess.containsLessString(0, listOfCVintersected.drop(i).head, specificKeywords)) 0
-  else categorizePositionsC.data(i)).toArray)
-
-
-/*
-  val categorizePositions =  DenseVector((0 until valuesC.length).map(i=>
-
-  if((valuesC.data(i) < 0.40 && ( cvLength.drop(i).head < 8) ) || cvLength.drop(i).head <2 ) 0
-  else trainingSetVector.data(positionsC.data(i))).toArray)
- // val specificKeywords = List("WEBSITE","delivery","delivered","PHONENUMBER" ,"MONEY","PER", "reply", "text", "send","sent","ringtone","free", "freemsg", "click","chat","offer", "won","service","lottery","cash","congrats","win","claim","prize","subscribe", "unsubscribe", "order", "call", "dial", "buy","link","sale","store","visit")
-
-  val finalCategorizationC = decisionTree(categorizePositions,listOfCVintersected,specificKeywords)
-*/
-
-dataProcess.evaluationMetrics(crossValidationSet.setVector, finalCategorizationC)
-
-
-  println("EUCLIDEAN SIMILARITY")
-  val distanceMatrix = dataProcess.distanceVector(TFIDFMatrixCV, convertedMatrix)
-  val positionsE = distanceMatrix(*, ::).map(row => argmin(row))
-  val valuesE :DenseVector[Double] = distanceMatrix(*, ::).map(row => min(row))
-
-  val categorizePositionsE =  DenseVector((0 until valuesE.length).map(i=>
-
-  if((valuesE.data(i) > 0.60 && ( cvLength.drop(i).head < 8) ) || cvLength.drop(i).head <2 ) 0
-  else trainingSet.setVector.data(positionsE.data(i))).toArray)
-
-  val finalCategorizationE = dataProcess.decisionTree(categorizePositionsE,listOfCVintersected,specificKeywords)
-  //listOfCVintersected
-  // == 0 && trainingSetStopWords.drop(x).head._2.contains("WEBSITE"))
-  dataProcess.evaluationMetrics(crossValidationSet.setVector, finalCategorizationE)
-
-/*
-println("EUCLIDEAN SIMILARITY")
-val distanceMatrix = distanceVector(TFIDFMatrixCV, convertedMatrix)
-val positionsE = distanceMatrix(*, ::).map(row => argmin(row))
-val valuesE :DenseVector[Double] = distanceMatrix(*, ::).map(row => min(row))
-val categorizePositionsE = positionsE.map(x => trainingSetVector(x))
-
-val finalCategorizationE = DenseVector((0 until positionsE.length).map(i=>
-  if(categorizePositionsE.data(i) == 0 && valuesE.data(i)>3 && containsMoreString(3, listOfCVintersected.drop(i).head, specificKeywords)) 1
-  else if (categorizePositionsE.data(i) == 1 && valuesE.data(i)>3 && containsLessString(0, listOfCVintersected.drop(i).head, specificKeywords)) 0
-  else categorizePositionsE.data(i)).toArray)
-
-*/
-   dataProcess.evaluationMetrics(crossValidationSet.setVector, finalCategorizationE)
-
-  val superFinalCategorization = (finalCategorizationC + finalCategorizationE + decisionT ).map(x=>
+  val trueCategorization = (cosineTree.finalCategorizationC +  euclideanTree.finalCategorizationE + decisionT ).map(x=>
     x match {
       case 0 => 0
       case 1 => 0
@@ -126,10 +69,7 @@ val finalCategorizationE = DenseVector((0 until positionsE.length).map(i=>
   )
 
  println("FINAL METRICS")
- dataProcess.evaluationMetrics(crossValidationSet.setVector,superFinalCategorization)
-
-
-
+ dataProcess.evaluationMetrics(crossValidationSet.setVector,trueCategorization)
 
   //Running time in seconds
   val finalTime = System.currentTimeMillis

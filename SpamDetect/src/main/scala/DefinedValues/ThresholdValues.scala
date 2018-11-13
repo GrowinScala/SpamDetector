@@ -10,4 +10,6 @@ class ThresholdValues {
   val returnHam = 0
   val returnSpam = 1
 
+
+
 }

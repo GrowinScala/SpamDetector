@@ -115,7 +115,7 @@ import scala.io.Source
 
   //Converts words using Porter stemmer
   def applyStemmer(targetSet:List[String]):List[String]={
-    targetSet.map(x => tokenization(x).map(y=>Stemmer.stem(y)).mkString(" "))
+    targetSet.map(x => tokenization(x).map(y=>Stemmer.Stemmer.stem(y)).mkString(" "))
   }
 
   //Simplify data by grouping in a *word* (Strings must be lower case)
