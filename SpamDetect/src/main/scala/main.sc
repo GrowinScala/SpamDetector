@@ -45,8 +45,6 @@ val trainingSetStopWords = takeStopWords(stemmedStopWords, trainingStemmed)
 //Make term frequency matrix from target set
 val termFrequencyMatrix = makeTFMatrix(trainingSetStopWords)
 
-//Save results to target file
-saveToFile("src\\main\\resources\\spamdata\\output.dat", trainingSetStopWords)
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -5,22 +5,11 @@ import breeze.numerics._
 
 import scala.io.Source
 
- object ProcessData {
+ class ProcessData {
+   val fileName = new FilesName()
 
    //TODO: Use URL encoding here instead of the regex:
-   val spamDataPath =  getClass.getResource("/spamdata").getPath.replaceAll("%20", " ")
-
-
-   // Saves a List of integers to target path
-
-  /*def saveToFileInt(pathSet: String, targetSet: List[Int])={
-    val file = new File(pathSet)
-    val bw = new BufferedWriter(new FileWriter(file))
-    for (line <- targetSet){
-      bw.write(line + " ")
-    }
-    bw.close()
-  }*/
+   //val spamDataPath =  getClass.getResource("/spamdata").getPath.replaceAll("%20", " ")
 
   // Saves a List of something to target path
    def saveToFile[T](pathName: String, targetSet: List[T]): Unit ={
@@ -41,7 +30,7 @@ import scala.io.Source
   //1 - Training Set, containing 60% of the data
   //2 - Cross-Validation Set, containing 20% of the data
   //3 - Test Set, containing 20% of the data
-  def splitA(fileName : String):Unit ={
+  def splitA(fileName : String, trainingSetPath: String, crossValidationSetPath:String, testSetPath:String):Unit ={
     val bSource = Source.fromFile(fileName).getLines().toList
     val bShuffle = scala.util.Random.shuffle(bSource)
     //Dividing the data into 10 parts in order to be easier to split it into the different sets
@@ -49,9 +38,10 @@ import scala.io.Source
     val trainingSet = bShuffle.slice(0, sizeBuff*6)
     val crossValidation = bShuffle.slice(sizeBuff*6, sizeBuff*8)
     val testSet = bShuffle.slice(sizeBuff*8, sizeBuff*10)
-    saveToFile(spamDataPath+"/trainingset.dat",trainingSet)
-    saveToFile(spamDataPath+ "/crossvalidation.dat",crossValidation)
-    saveToFile(spamDataPath +"/testset.dat",testSet)
+
+    saveToFile(trainingSetPath,trainingSet)
+    saveToFile(crossValidationSetPath,crossValidation)
+    saveToFile(testSetPath,testSet)
   }
 
   // Separates line into classification and message
@@ -167,7 +157,7 @@ import scala.io.Source
     //Converted words into a map pointing to 0
     val mappedLisfOfWords : Map[String,Double]= listOfWords.map(x=> x->0.0).toMap
 
-    saveToFile(spamDataPath+"/listOfWords.dat", mappedLisfOfWords.keys.toList)
+    saveToFile(fileName.fileListOfWords, mappedLisfOfWords.keys.toList)
 
     //Every words is atributted the value of converted sentence into a map
     // Where each vector maps the proportion of the words presented in a specific sentence(Term Frequency)
@@ -202,24 +192,6 @@ import scala.io.Source
    //various strings of the training set
    def cosineVector(TFIDFMatrixCV: DenseMatrix[Double], convertedMatrix: DenseMatrix[Double]): DenseMatrix[Double] =
      convertedMatrix(::, *).map(colsCV => TFIDFMatrixCV(::, *).map(cols => cosineSimilarity(colsCV, cols)).inner).toDenseMatrix.t
-
-
-
-   //This function is a worse version of
-  //convertedMatrix(::, *).map(colsCV => TFIDFMatrixCV(::, *).map(cols => cosineSimilarity(colsCV, cols)).inner).toDenseMatrix.t
-   /*
-     def cosineVector(convertedMatrix: DenseMatrix[Double],  TFIDFMatrixCV: DenseMatrix[Double]): DenseMatrix[Double] = {
-       def cosineVectorAux(convertedMatrixAux: DenseMatrix[Double],  TFIDFMatrixCVAux: DenseMatrix[Double]):DenseMatrix[Double] = {
-          val vetor1: DenseMatrix[Double] = TFIDFMatrixCVAux(::, *).map(cols => cosineSimilarity(convertedMatrixAux(::, 0), cols)).inner.toDenseMatrix
-
-         if (convertedMatrixAux.cols == 2 ) DenseMatrix.vertcat(vetor1, TFIDFMatrixCVAux(::, *).map(cols => cosineSimilarity(convertedMatrixAux(::, 1), cols)).inner.toDenseMatrix)
-         else DenseMatrix.vertcat(vetor1, cosineVectorAux(convertedMatrixAux(::, 1 to -1), TFIDFMatrixCVAux))
-       }
-       cosineVectorAux(convertedMatrix,  TFIDFMatrixCV)
-     }
-   val cosineVector: DenseMatrix[Double] = cosineVector(convertedMatrix, TFIDFMatrixCV)
-
-   */
 
    /*
    * This method takes 2 equal length arrays of doubles
@@ -333,30 +305,6 @@ import scala.io.Source
      }
      cosineVector.map(x => auxValues(x,numberMax))
    }
-
-   /*
-   def ponderationValues(values : List[Seq[Double]], positions : List[IndexedSeq[Int]], trainingSet : List[(Int,String)]): List[Int] = {
-       def associateValPos (values : List[Seq[Double]], positions : List[IndexedSeq[Int]]) : List[Seq[(Int,Double)]] = {
-         if(values.tail.isEmpty) positions.head.zip(values.head) :: Nil
-         else positions.head.zip(values.head) +: associateValPos(values.tail,positions.tail)
-
-       }
-     val ponderation =  associateValPos(values,positions).map(x=> x.foldLeft(0.0)((count,y)=> if(trainingSet.drop(y._1).head._1 == 0) pow(y._2, 2) + count else count - pow(y._2, 2)))
-     ponderation.map(x=> if(x > 0) 0 else 1)
-
-   }
-
-   def positions(cosineVector : List[DenseVector[Double]], numberMax : Int ): List[IndexedSeq[Int]] = {
-     cosineVector.map(x => argtopk(x,numberMax))
-   }
-
-   def seeMajority( positions : List[IndexedSeq[Int]], trainingSet: List[(Int,String)]): List[Int] ={
-
-     val majority = positions.map(x => x.foldLeft(0)((count,y) => trainingSet.drop(y).head._1 + count ))
-     majority.map(x=> if( x<= 1) 0 else 1)
-
-   }
-   */
 
    def containsMoreString(thresh: Int, targetString: List[String], specificKeywords:List[String]): Boolean={
      val stemmedSpecificKeywords = applyStemmer(specificKeywords)
