@@ -80,7 +80,7 @@ object Stemmer {
       "ize" → "")
 
     // Tide up a little bit
-    stem = stem applyReplaces(((m > 1) + "e") → "",
+    stem = stem applyReplaces (((m > 1) + "e") → "",
       (((m == 1) and not(~o)) + "e") → "")
 
     stem = stem applyReplaces ((m > 1 and ~d and ~L) → singleLetter)
@@ -89,20 +89,20 @@ object Stemmer {
   }
 
   /**
-    * Pattern that is matched against the word.
-    * Usually, the end of the word is compared to suffix,
-    * and the beginning is checked to satisfy a condition.
-    *
-    * @param condition Condition to be checked
-    * @param suffix    Expected suffix of the word
-    */
+   * Pattern that is matched against the word.
+   * Usually, the end of the word is compared to suffix,
+   * and the beginning is checked to satisfy a condition.
+   *
+   * @param condition Condition to be checked
+   * @param suffix    Expected suffix of the word
+   */
   private case class Pattern(condition: Condition, suffix: String)
 
   /**
-    * Condition, that is checked against the beginning of the word
-    *
-    * @param predicate Predicate to be applied to the word
-    */
+   * Condition, that is checked against the beginning of the word
+   *
+   * @param predicate Predicate to be applied to the word
+   */
   private case class Condition(predicate: Word ⇒ Boolean) {
     def + = new Pattern(this, _: String)
 
@@ -139,10 +139,10 @@ object Stemmer {
   private val v = Condition(_.containsVowels)
 
   /**
-    * Builder of the stem
-    *
-    * @param build Function to be called to build a stem
-    */
+   * Builder of the stem
+   *
+   * @param build Function to be called to build a stem
+   */
   private case class StemBuilder(build: Word ⇒ Word)
 
   private def suffixStemBuilder(suffix: String) = StemBuilder(_ + suffix)
@@ -152,7 +152,7 @@ object Stemmer {
   private class Word(string: String) {
     val word = string
 
-    def trimSuffix(suffixLength: Int) = new Word(word substring(0, word.length - suffixLength))
+    def trimSuffix(suffixLength: Int) = new Word(word substring (0, word.length - suffixLength))
 
     def endsWith = word endsWith _
 
@@ -184,10 +184,10 @@ object Stemmer {
         !(Set('w', 'x', 'y') contains word(word.length - 2))
 
     /**
-      * Measure of the word -- the number of VCs
-      *
-      * @return integer
-      */
+     * Measure of the word -- the number of VCs
+     *
+     * @return integer
+     */
     def measure = word.indices.filter(pos ⇒ hasVowelAt(pos) && hasConsonantAt(pos + 1)).length
 
     def matchedBy: Pattern ⇒ Boolean = {
@@ -210,8 +210,7 @@ object Stemmer {
     override def toString = word
   }
 
-  private implicit def pimpMyRule[P <% Pattern, SB <% StemBuilder]
-  (rule: (P, SB)): (Pattern, StemBuilder) = (rule._1, rule._2)
+  private implicit def pimpMyRule[P <% Pattern, SB <% StemBuilder](rule: (P, SB)): (Pattern, StemBuilder) = (rule._1, rule._2)
 
   private implicit def emptyConditionPattern: String ⇒ Pattern = Pattern(emptyCondition, _)
 

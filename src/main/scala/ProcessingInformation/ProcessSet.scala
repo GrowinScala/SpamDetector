@@ -13,7 +13,6 @@ class ProcessSet(stopWordsFileName: String, targetSetFileName: String) {
   //apply stemmer to the list of stop Words and take the common words
   val stemmedStopWords = dataProcess.applyStemmer(stopWordsList).distinct
 
-
   //splitA("src\\main\\resources\\spamdata\\spam.dat")
   lazy val setLoaded = dataProcess.readListFromFile(targetSetFileName)
   lazy val setParsed = dataProcess.parseA(setLoaded)

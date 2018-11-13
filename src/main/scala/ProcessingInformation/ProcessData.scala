@@ -1,8 +1,8 @@
 package ProcessingInformation
 
-import java.io.{BufferedWriter, File, FileWriter}
+import java.io.{ BufferedWriter, File, FileWriter }
 
-import DefinedStrings.{FilesName, Regex, SpecificWords}
+import DefinedStrings.{ FilesName, Regex, SpecificWords }
 import breeze.linalg._
 import breeze.numerics._
 
@@ -93,11 +93,11 @@ class ProcessData {
   }
 
   /**
-    * Delete all the punctuation presented in every text message (apostrophe and hyphens are maintained)
-    *
-    * @param targetSet
-    * @return
-    */
+   * Delete all the punctuation presented in every text message (apostrophe and hyphens are maintained)
+   *
+   * @param targetSet
+   * @return
+   */
   def takePunctuation(targetSet: List[(Int, String)]): List[(Int, String)] =
     targetSet.map(x => (x._1, x._2.replaceAll(regex.regexPunctuation, " ")))
 
@@ -135,9 +135,7 @@ class ProcessData {
       .replaceAll(regex.regexMoney, " " + specificWords.MONEY + " ")
       .replaceAll(regex.regexDate, " ")
       .replaceAll(regex.regexNumber, " ")
-      .replaceAll(regex.regexRepetition, " " + specificWords.REPETITION + " ")
-    )
-    )
+      .replaceAll(regex.regexRepetition, " " + specificWords.REPETITION + " ")))
   }
 
   def listOfWordsF(targetSet: List[(Int, String)]): List[String] = {
@@ -147,7 +145,6 @@ class ProcessData {
     val listOfWords = targetSet.foldLeft(List(""))((s, x) => tokenization(x._2) ++ s).distinct.sorted.filterNot(x => x.equals(""))
     listOfWords
   }
-
 
   //Make term frequency matrix from target set
   def makeTFMatrix(targetSet: List[(Int, String)]): DenseMatrix[Double] = {
@@ -175,7 +172,6 @@ class ProcessData {
     //transpose matrix
     matrix.t
   }
-
 
   //Makes tf * idf matrix
   def makeTFIDFMatrix(TFMatrix: DenseMatrix[Double]): DenseMatrix[Double] = {
@@ -283,7 +279,6 @@ class ProcessData {
     println(s"Recall (% of spam emails that were predicted correctly): ${truePos / (truePos + falseNeg)}")
     println(s"F1-score: ${2 * truePos / (2 * truePos + falseNeg + falsePos)}")
   }
-
 
   def containsString(stringList: List[String], targetStringList: List[String]): Boolean = {
     stringList.intersect(targetStringList).length >= 3

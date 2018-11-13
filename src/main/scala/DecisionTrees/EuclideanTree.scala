@@ -2,8 +2,8 @@ package DecisionTrees
 
 import DefinedStrings.SpecificWords
 import DefinedValues.ThresholdValues
-import ProcessingInformation.{ProcessData, ProcessSet}
-import breeze.linalg.{*, DenseMatrix, DenseVector, argmin, min}
+import ProcessingInformation.{ ProcessData, ProcessSet }
+import breeze.linalg.{ *, DenseMatrix, DenseVector, argmin, min }
 
 class EuclideanTree(TFIDFMatrixCV: DenseMatrix[Double], convertedMatrix: DenseMatrix[Double], listOfCVintersected: List[List[String]], trainingSet: ProcessSet) {
 
@@ -24,6 +24,5 @@ class EuclideanTree(TFIDFMatrixCV: DenseMatrix[Double], convertedMatrix: DenseMa
     else trainingSet.setVector.data(positionsE.data(i))).toArray)
 
   val finalCategorizationE = dataProcess.decisionTree(categorizePositionsE, listOfCVintersected, specificKeywords)
-
 
 }

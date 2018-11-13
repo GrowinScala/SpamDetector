@@ -1,6 +1,6 @@
 package DecisionTrees
 
-import DefinedStrings.{Regex, SpecificWords}
+import DefinedStrings.{ Regex, SpecificWords }
 import DefinedValues.ThresholdValues
 
 object DecisionTree {
@@ -10,11 +10,11 @@ object DecisionTree {
   val thresholdV = new ThresholdValues()
 
   /**
-    *
-    * @param targetSentence
-    * @param specificKeywords
-    * @return
-    */
+   *
+   * @param targetSentence
+   * @param specificKeywords
+   * @return
+   */
   def decisionTreeTargetString(targetSentence: String, specificKeywords: List[String]): Int = {
     val sentence = targetSentence.split(" ")
     if (sentence.intersect(specificKeywords).length == thresholdV.noIntersection) thresholdV.returnHam else {
@@ -25,7 +25,8 @@ object DecisionTree {
             else thresholdV.returnHam
           }
         }
-      } else {
+      }
+      else {
         if (sentence.intersect(specificKeywords).length >= thresholdV.intersection4) thresholdV.returnSpam else {
           if (targetSentence.replaceAll(regex.regexUpper, " " + specificWords.UPPER + " ").contains(specificWords.UPPER)
             && (sentence.intersect(specificKeywords).length >= thresholdV.intersection2)) thresholdV.returnSpam

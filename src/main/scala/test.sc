@@ -18,12 +18,12 @@ val TFmatrix = dataProcess.makeTFMatrix(trainingSet.setStopWords)
 //Creates TFIDF matrix through TF matrix
 val TFIDFMatrix = dataProcess.makeTFIDFMatrix(TFmatrix)
 //Saves in csv file the matrix TFIDF
-dataProcess.saveToFile(fileName.fileMatrixTFIDF, TFIDFMatrix)
+//dataProcess.saveToFile(fileName.fileMatrixTFIDF, TFIDFMatrix)
 
 //Read the matrix created and saved in function
-lazy val TFIDFMatrixCV = dataProcess.readMatrixFromFile(fileName.fileMatrixTFIDF)
+//val TFIDFMatrixCV = dataProcess.readMatrixFromFile(fileName.fileMatrixTFIDF)
 
-val crossValidationSet = new ProcessSet(fileName.fileStopWords, fileName.fileCrossValidation)
+val crossValidationSet = new ProcessSet(fileName.fileStopWords, fileName.fileTestSet)
 
 val cvSetStopWords = dataProcess.takeStopWords(crossValidationSet.stemmedStopWords, crossValidationSet.stemmedSet)
 val specificKeywords = dataProcess.applyStemmer(specificWords.commonSpamWords)
@@ -50,17 +50,17 @@ val listOfCVintersected: List[List[String]] = listOfCVSentences.map(x => x.filte
 //maps the proportion of the words presented in a specific sentence (Term Frequency)
 val convertedMatrix: DenseMatrix[Double] = dataProcess.convertedMatrixList(listOfCVintersected, mappedLisfOfWords)
 
-val cosineTree = new CosineTree(TFIDFMatrixCV, convertedMatrix, listOfCVintersected, trainingSet)
+val cosineTree = new CosineTree(TFIDFMatrix, convertedMatrix, listOfCVintersected, trainingSet)
 dataProcess.evaluationMetrics(crossValidationSet.setVector, cosineTree.finalCategorizationC)
 
-val euclideanTree = new EuclideanTree(TFIDFMatrixCV, convertedMatrix, listOfCVintersected, trainingSet)
+val euclideanTree = new EuclideanTree(TFIDFMatrix, convertedMatrix, listOfCVintersected, trainingSet)
 dataProcess.evaluationMetrics(crossValidationSet.setVector, euclideanTree.finalCategorizationE)
 
 
 //dataProcess.evaluationMetrics(crossValidationSet.setVector, finalCategorizationE)
 
-val trueCategorization = (cosineTree.finalCategorizationC + euclideanTree.finalCategorizationE + decisionT).map(x =>
-  x match {
+val trueCategorization = (cosineTree.finalCategorizationC + euclideanTree.finalCategorizationE + decisionT).map(
+  {
     case 0 => 0
     case 1 => 0
     case 2 => 1

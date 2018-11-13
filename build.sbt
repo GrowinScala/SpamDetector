@@ -18,5 +18,4 @@ libraryDependencies ++= Seq(
   // It depends on LGPL code
   "org.scalanlp" %% "breeze-viz" % "0.13.2",
 )
-addSbtPlugin("org.scalariform" % "sbt-scalariform" % "1.8.2")
 resolvers += "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/"
