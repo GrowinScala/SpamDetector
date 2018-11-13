@@ -2,8 +2,8 @@ package DefinedStrings
 
 class FilesName {
 
-  val spamDataPath =  getClass.getResource("/spamdata").getPath.replaceAll("%20", " ")
-  val fileCrossValidation = spamDataPath +"/crossvalidation.dat"
+  val spamDataPath = getClass.getResource("/spamdata").getPath.replaceAll("%20", " ")
+  val fileCrossValidation = spamDataPath + "/crossvalidation.dat"
   val fileListOfWords = spamDataPath + "/listOfWords.dat"
   val fileMatrixTFIDF = spamDataPath + "/matrixTFIDF.csv"
   val fileAllSet = spamDataPath + "/spam.dat"

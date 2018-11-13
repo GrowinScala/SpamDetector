@@ -4,13 +4,13 @@ class Regex {
 
   val regexPunctuation = "\\p{Punct}"
   val regexWebsite = "(\\S*www\\.\\S*)|(\\S*\\.com\\S*)|(\\S+\\/\\S+\\/\\S+\\/\\S+)"
-  val regexSmile = "(:" + regexPunctuation +"+)|(:\\w\\s+)"
+  val regexSmile = "(:" + regexPunctuation + "+)|(:\\w\\s+)"
   val regexTripleDot = "\\.{3}"
   val regexPhoneNumber = "\\d{5,}|(\\d\\s*){11}"
   val regexPer = "\\w{1,4}\\/\\w{1,4}"
 
   val regexWeekDays = "(" + regexPunctuation + "+|\\W)((mon)|(monday)|(tue)|(tuesday)|(wed)" +
-    "|(wednesday)|(thu)|(thursday)|(friday)|(saturday)|(sunday))(" + regexPunctuation +"+|\\W)"
+    "|(wednesday)|(thu)|(thursday)|(friday)|(saturday)|(sunday))(" + regexPunctuation + "+|\\W)"
 
   val regexMonth = "(" + regexPunctuation + "+|\\W)((jan)|(january)|(feb)|(february)|(mar)|(march)" +
     "|(apr)|(april)|(may)|(jun)|(june)|(jul)|(july)|(aug)|(august)|(sep)|(september)|(oct)|" +

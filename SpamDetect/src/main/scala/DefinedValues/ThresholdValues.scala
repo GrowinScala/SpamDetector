@@ -11,5 +11,4 @@ class ThresholdValues {
   val returnSpam = 1
 
 
-
 }

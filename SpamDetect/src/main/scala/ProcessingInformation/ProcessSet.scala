@@ -3,7 +3,7 @@ package ProcessingInformation
 import DefinedStrings.FilesName
 import breeze.linalg.DenseVector
 
-class ProcessSet(stopWordsFileName:String, targetSetFileName:String) {
+class ProcessSet(stopWordsFileName: String, targetSetFileName: String) {
 
   val fileName = new FilesName
   val dataProcess = new ProcessData
@@ -17,17 +17,17 @@ class ProcessSet(stopWordsFileName:String, targetSetFileName:String) {
   //splitA("src\\main\\resources\\spamdata\\spam.dat")
   lazy val setLoaded = dataProcess.readListFromFile(targetSetFileName)
   lazy val setParsed = dataProcess.parseA(setLoaded)
-  val setVector =  DenseVector(setParsed.map(x => x._1).toArray)
+  val setVector = DenseVector(setParsed.map(x => x._1).toArray)
 
   //saveToFile("src\\main\\resources\\spamdata\\trainingset.dat", trainingSet)
 
   val setLower = dataProcess.uppertoLower(setParsed)
   val replacedSet = dataProcess.replaceOverall(setLower)
   val setPonctuation = dataProcess.takePunctuation(replacedSet)
-  val stemmedSet = setPonctuation.map(x=> x._1)
-    .zip(dataProcess.applyStemmer(setPonctuation.map(x=> x._2)))
+  val stemmedSet = setPonctuation.map(x => x._1)
+    .zip(dataProcess.applyStemmer(setPonctuation.map(x => x._2)))
   val setStopWords = dataProcess.takeStopWords(stemmedStopWords, stemmedSet)
-  val setLength = dataProcess.countLength(setStopWords).map(x=> x._2)
+  val setLength = dataProcess.countLength(setStopWords).map(x => x._2)
   //
 
 }
