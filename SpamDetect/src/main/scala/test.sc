@@ -1,12 +1,15 @@
 
+import DefinedStrings.{FilesName, SpecificWords}
+import ProcessingInformation.{ProcessData, ProcessSet}
 import breeze.linalg._
-//import ProcessData._
-import DecisionTree._
+//import ProcessingInformation.ProcessData._
+import DecisionTrees.DecisionTree._
 
 val inicialTime: Long = System.currentTimeMillis
 
 val fileName = new FilesName()
 val dataProcess = new ProcessData()
+val specificWords = new SpecificWords()
 
 val trainingSet = new ProcessSet(fileName.fileStopWords, fileName.fileTrainingSet)
 
@@ -22,7 +25,7 @@ dataProcess.saveToFile(fileName.fileMatrixTFIDF , TFIDFMatrix)
   val crossValidationSet = new ProcessSet(fileName.fileStopWords,fileName.fileCrossValidation)
 
   val cvSetStopWords = dataProcess.takeStopWords(crossValidationSet.stemmedStopWords, crossValidationSet.stemmedSet)
-  val specificKeywords = dataProcess.applyStemmer(List("WEBSITE", "horny", "member","download" ,"mobile", "delivery","delivered","PHONENUMBER" ,"MONEY","PER", "reply", "text", "send","sent","ringtone","free", "freemsg", "click","chat","offer", "won","service","lottery","cash","congrats","win","claim","prize","subscribe", "unsubscribe", "order", "call", "dial", "buy","link","sale","store","visit","poly","credit"))
+  val specificKeywords = dataProcess.applyStemmer(specificWords.commonSpamWords)
 
   val decisionT = DenseVector(cvSetStopWords.map(x=> decisionTreeTargetString(x._2,dataProcess.applyStemmer(specificKeywords))).toArray)
   dataProcess.evaluationMetrics(crossValidationSet.setVector, decisionT)
@@ -46,14 +49,17 @@ dataProcess.saveToFile(fileName.fileMatrixTFIDF , TFIDFMatrix)
   //maps the proportion of the words presented in a specific sentence (Term Frequency)
   val convertedMatrix: DenseMatrix[Double] = dataProcess.convertedMatrixList(listOfCVintersected, mappedLisfOfWords)
 
-  //This function will calculate the cosine similarity between the convertedMatrix and TFIDF Matrix
-  //It will return a matrix where each row represents the different values between a string j of cross validation and the
-  //various strings of the training set
-  val cosineMatrix = dataProcess.cosineVector(TFIDFMatrixCV, convertedMatrix)
+
+
 
   //For every vector of the cosineVector list, it is calculated the position of the maximum value.
   //This position corresponds to the most similar string of training data with the string of CV data considered
   println("COSINE SIMILARITY")
+
+  //This function will calculate the cosine similarity between the convertedMatrix and TFIDF Matrix
+  //It will return a matrix where each row represents the different values between a string j of cross validation and the
+  //various strings of the training set
+  val cosineMatrix = dataProcess.cosineVector(TFIDFMatrixCV, convertedMatrix)
   val positionsC :DenseVector[Int] = cosineMatrix(*, ::).map(row => argmax(row))
   val valuesC :DenseVector[Double] = cosineMatrix(*, ::).map(row => max(row))
   val cvLength = dataProcess.countLength(cvSetStopWords).map(x=> x._2)

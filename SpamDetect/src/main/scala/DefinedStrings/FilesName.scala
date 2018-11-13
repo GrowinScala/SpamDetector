@@ -1,3 +1,5 @@
+package DefinedStrings
+
 class FilesName {
 
   val spamDataPath =  getClass.getResource("/spamdata").getPath.replaceAll("%20", " ")

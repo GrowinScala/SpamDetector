@@ -1,4 +1,6 @@
-import DecisionTree.getClass
+package ProcessingInformation
+
+import DefinedStrings.FilesName
 import breeze.linalg.DenseVector
 
 class ProcessSet(stopWordsFileName:String, targetSetFileName:String) {
