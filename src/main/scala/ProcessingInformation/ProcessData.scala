@@ -282,26 +282,20 @@ class ProcessData {
   }
 
   def decisionTree(categorizePositionsE: DenseVector[Int], listOfCVintersected: List[List[String]], specificKeywords: List[String]): DenseVector[Int] = {
-
     val categorizedWithList = categorizePositionsE.data.zip(listOfCVintersected)
     val stemmedSpecificKeywords = applyStemmer(specificKeywords)
     val newCategorization = categorizedWithList.map(x => if (x._1 == 0 && containsString(x._2, stemmedSpecificKeywords)) 1 else x._1)
-
     DenseVector(newCategorization)
   }
 
   //The code below was constructed to test a different approach to the cosine similarity
   //using the weighted balancing of the k closest vectors
   def values(cosineVector: List[DenseVector[Double]], numberMax: Int): List[Seq[Double]] = {
-
     def auxValues(auxVector: DenseVector[Double], numberMax: Int): Seq[Double] = {
-
       val indexMax = argmax(auxVector)
-
       if (numberMax == 1) auxVector(indexMax) +: Seq()
       else auxVector(indexMax) +: auxValues(DenseVector.vertcat(auxVector.slice(0, indexMax), auxVector.slice(indexMax + 1, auxVector.length)), numberMax - 1)
     }
-
     cosineVector.map(x => auxValues(x, numberMax))
   }
 
