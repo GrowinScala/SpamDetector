@@ -3,7 +3,7 @@ package DecisionTrees
 import DefinedStrings.{ Regex, SpecificWords }
 import DefinedValues.ThresholdValues
 
-object DecisionTree {
+class DecisionTree(targetSentence: String, specificKeywords: List[String]){
 
   val regex = new Regex()
   val specificWords = new SpecificWords()
@@ -15,7 +15,7 @@ object DecisionTree {
    * @param specificKeywords
    * @return
    */
-  def decisionTreeTargetString(targetSentence: String, specificKeywords: List[String]): Int = {
+  def decisionTreeTargetString: Int = {
     val sentence = targetSentence.split(" ")
     if (sentence.intersect(specificKeywords).length == thresholdV.noIntersection) thresholdV.returnHam else {
       if (sentence.intersect(specificWords.decisionTreeIntersect).length > thresholdV.noIntersection) if (sentence.intersect(specificKeywords).length >= thresholdV.intersection3) thresholdV.returnSpam else {

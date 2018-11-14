@@ -3,7 +3,6 @@ import java.net.URLDecoder
 class FilesName {
 
   val spamDataPath = URLDecoder.decode(getClass.getResource("/spamdata").getPath)
-    //.replaceAll("%20", " ")
   val fileCrossValidation = spamDataPath + "/crossvalidation.dat"
   val fileListOfWords = spamDataPath + "/listOfWords.dat"
   val fileMatrixTFIDF = spamDataPath + "/matrixTFIDF.csv"

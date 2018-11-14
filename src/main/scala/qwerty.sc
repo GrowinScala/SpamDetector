@@ -1,14 +1,14 @@
-import java.io.File
+import org.apache.spark.{SparkConf, SparkContext}
 
-import DecisionTrees.{CosineTree, EuclideanTree}
-import DefinedStrings.{FilesName, SpecificWords}
-import ProcessingInformation.{ProcessData, ProcessSet}
-import breeze.linalg._
+val conf = new SparkConf()
+conf.setMaster("local[*]")
+conf.setAppName("Simple Application")
 
-import scala.io.Source
-//import ProcessingInformation.ProcessData._
-import DecisionTrees.DecisionTree._
-import java.net.URLDecoder
+val sc = new SparkContext(conf)
 
-val result = URLDecoder.decode("Rui Valente")
-//getClass.getResource("/spamdata").getPath
+val logFile = "/src/resources/spamdata/trainingset.dat"
+val logData = sc.textFile(logFile).cache()
+val numAs = logData.filter(line => line.contains("a")).count()
+val numBs = logData.filter(line => line.contains("b")).count()
+
+println(s"Lines with a: $numAs, Lines with b: $numBs")

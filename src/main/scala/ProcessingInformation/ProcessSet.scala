@@ -18,8 +18,6 @@ class ProcessSet(stopWordsFileName: String, targetSetFileName: String) {
   lazy val setParsed = dataProcess.parseA(setLoaded)
   val setVector = DenseVector(setParsed.map(x => x._1).toArray)
 
-  //saveToFile("src\\main\\resources\\spamdata\\trainingset.dat", trainingSet)
-
   val setLower = dataProcess.uppertoLower(setParsed)
   val replacedSet = dataProcess.replaceOverall(setLower)
   val setPonctuation = dataProcess.takePunctuation(replacedSet)
