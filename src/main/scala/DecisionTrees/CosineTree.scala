@@ -13,23 +13,29 @@ class CosineTree(TFIDFMatrixCV: DenseMatrix[Double], convertedMatrix: DenseMatri
 
   val specificKeywords = dataProcess.applyStemmer(specificWords.commonSpamWords)
 
-  //For every vector of the cosineVector list, it is calculated the position of the maximum value.
-  //This position corresponds to the most similar string of training data with the string of CV data considered
-
-  //This function will calculate the cosine similarity between the convertedMatrix and TFIDF Matrix
-  //It will return a matrix where each row represents the different values between a string j of cross validation and the
-  //various strings of the training set
+  /**
+    * This function will calculate the cosine similarity between the convertedMatrix and TFIDF Matrix
+    * It will return a matrix where each row represents the different values between a string j of cross
+    * validation and the various strings of the training set
+    */
   val cosineMatrix = dataProcess.cosineVector(TFIDFMatrixCV, convertedMatrix)
+
+  /**
+    * For every vector of the cosineVector list, it is calculated the position of the maximum value.
+    * This position corresponds to the most similar string of training data with the string of CV data considered
+    */
   val positionsC: DenseVector[Int] = cosineMatrix(*, ::).map(row => argmax(row))
   val valuesC: DenseVector[Double] = cosineMatrix(*, ::).map(row => max(row))
   val cvLength = dataProcess.countLength(trainingSet.setStopWords).map(x => x._2)
   val categorizePositionsC = positionsC.map(x => trainingSet.setVector(x))
 
+  /**
+    * Tree node that takes into account the cosine value and the number of specific words that a message contains,
+    * in order to reclassify it or not
+    */
   val finalCategorizationC = DenseVector((0 until valuesC.length).map(i =>
-
-    if (categorizePositionsC.data(i) == 0 && valuesC.data(i) < 0.45 && dataProcess.containsMoreString(3, listOfCVintersected.drop(i).head, specificKeywords)) 1
-    else if (categorizePositionsC.data(i) == 0 && valuesC.data(i) < 0.70 && dataProcess.containsMoreString(4, listOfCVintersected.drop(i).head, specificKeywords)) 1
-    else if (categorizePositionsC.data(i) == 1 && valuesC.data(i) < 0.65 && dataProcess.containsLessString(0, listOfCVintersected.drop(i).head, specificKeywords)) 0
+    if (categorizePositionsC.data(i) == threshV.categorizeHam && valuesC.data(i) < threshV.cosine045 && dataProcess.containsMoreString(threshV.string3, listOfCVintersected.drop(i).head, specificKeywords)) threshV.categorizeSpam
+    else if (categorizePositionsC.data(i) == threshV.categorizeHam && valuesC.data(i) < threshV.cosine070 && dataProcess.containsMoreString(threshV.string4, listOfCVintersected.drop(i).head, specificKeywords)) threshV.categorizeSpam
+    else if (categorizePositionsC.data(i) == threshV.categorizeSpam && valuesC.data(i) < threshV.cosine065 && dataProcess.containsLessString(threshV.string0, listOfCVintersected.drop(i).head, specificKeywords)) threshV.categorizeHam
     else categorizePositionsC.data(i)).toArray)
-
 }

@@ -16,7 +16,6 @@ libraryDependencies ++= Seq(
 
   // The visualization library is distributed separately as well.
   // It depends on LGPL code
-  "org.scalanlp" %% "breeze-viz" % "0.13.2",
   "org.apache.spark" %% "spark-core" % "2.4.0"
 )
 resolvers += "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/"

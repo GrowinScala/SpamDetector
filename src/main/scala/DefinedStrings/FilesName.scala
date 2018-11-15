@@ -2,6 +2,9 @@ package DefinedStrings
 import java.net.URLDecoder
 class FilesName {
 
+  /**
+    * Paths to the data files
+    */
   val spamDataPath = URLDecoder.decode(getClass.getResource("/spamdata").getPath)
   val fileCrossValidation = spamDataPath + "/crossvalidation.dat"
   val fileListOfWords = spamDataPath + "/listOfWords.dat"
