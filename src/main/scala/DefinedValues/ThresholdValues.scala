@@ -17,4 +17,9 @@ class ThresholdValues {
   val cosine045 = 0.45
   val cosine065 = 0.65
   val cosine070 = 0.7
+  val tenparts = 10
+  val sixparts = 6
+  val eightparts = 8
+  val zeroparts = 0
+
 }

@@ -1,8 +1,9 @@
 package ProcessingInformation
 
-import java.io.{ BufferedWriter, File, FileWriter }
+import java.io.{BufferedWriter, File, FileWriter}
 
-import DefinedStrings.{ FilesName, Regex, SpecificWords }
+import DefinedStrings.{FilesName, Regex, SpecificWords}
+import DefinedValues.ThresholdValues
 import breeze.linalg._
 import breeze.numerics._
 
@@ -37,6 +38,8 @@ class ProcessData {
     breeze.linalg.csvwrite(new File(pathName), matrix, separator = ' ')
   }
 
+  val threshV = new ThresholdValues()
+
   /**
     * Function used to split the spam.dat into three different groups, then save those groups into 3 different sets:
     * 1 - Training Set, containing 60% of the data
@@ -53,10 +56,10 @@ class ProcessData {
     /**
       * Dividing the data into 10 parts in order to be easier to split it into the different sets
      */
-    val sizeBuff: Int = bShuffle.size / 10
-    val trainingSet = bShuffle.slice(0, sizeBuff * 6)
-    val crossValidation = bShuffle.slice(sizeBuff * 6, sizeBuff * 8)
-    val testSet = bShuffle.slice(sizeBuff * 8, sizeBuff * 10)
+    val sizeBuff: Int = bShuffle.size / threshV.tenparts
+    val trainingSet = bShuffle.slice(threshV.zeroparts, sizeBuff * threshV.sixparts)
+    val crossValidation = bShuffle.slice(sizeBuff * threshV.sixparts, sizeBuff * threshV.eightparts)
+    val testSet = bShuffle.slice(sizeBuff * threshV.eightparts, sizeBuff * threshV.tenparts)
     saveToFile(trainingSetPath, trainingSet)
     saveToFile(crossValidationSetPath, crossValidation)
     saveToFile(testSetPath, testSet)
@@ -76,8 +79,8 @@ class ProcessData {
       * Convert spam into 1 and ham into 0, separated by first comma
       */
     val classification = line.substring(0, index) match {
-      case "ham" => 0
-      case "spam" => 1
+      case "ham" => threshV.categorizeHam
+      case "spam" => threshV.categorizeSpam
     }
     /**
       * Separate the text message
@@ -379,7 +382,7 @@ class ProcessData {
     * @return
     */
   def containsString(stringList: List[String], targetStringList: List[String]): Boolean = {
-    stringList.intersect(targetStringList).length >= 3
+    stringList.intersect(targetStringList).length >= threshV.string3
   }
 
   /**
@@ -392,7 +395,7 @@ class ProcessData {
   def decisionTree(categorizePositionsE: DenseVector[Int], listOfCVintersected: List[List[String]], specificKeywords: List[String]): DenseVector[Int] = {
     val categorizedWithList = categorizePositionsE.data.zip(listOfCVintersected)
     val stemmedSpecificKeywords = applyStemmer(specificKeywords)
-    val newCategorization = categorizedWithList.map(x => if (x._1 == 0 && containsString(x._2, stemmedSpecificKeywords)) 1 else x._1)
+    val newCategorization = categorizedWithList.map(x => if (x._1 == threshV.categorizeHam && containsString(x._2, stemmedSpecificKeywords)) threshV.categorizeSpam else x._1)
     DenseVector(newCategorization)
   }
 

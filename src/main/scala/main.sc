@@ -1,131 +1,153 @@
-import ProcessData._
-import breeze.linalg.{*, DenseMatrix, DenseVector, argmax, max}
+import DecisionTrees.{CosineTree, EuclideanTree, DecisionTree}
+import DefinedStrings.{FilesName, SpecificWords}
+import ProcessingInformation.{ProcessData, ProcessSet}
+import breeze.linalg._
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////TRAINING DATA-SET///////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//Initial Runtime time
+/**
+  * Set timer
+  */
 val inicialTime: Long = System.currentTimeMillis
 
-//Gets the path until the file name
-//Filters spaces from User so that intellij is able to read the correct path
-val spamDataPath = getClass.getResource("/spamdata").getPath.replaceAll("%20", " ")
+/**
+  * Classes FilesName(), ProcessData(), SpecificWords()
+  */
+val fileName = new FilesName()
+val dataProcess = new ProcessData()
+val specificWords = new SpecificWords()
 
-//Load training set from file
-lazy val trainingSetLoaded = readListFromFile("src\\main\\resources\\spamdata\\trainingset.dat")
+/**
+  * Class that processes the training set
+  */
+val trainingSet = new ProcessSet(fileName.fileStopWords, fileName.fileTrainingSet)
 
-//Converts training set in a categorize list
-lazy val trainingSet = parseA(trainingSetLoaded)
+/*
+/**
+  * Creates matrix TF
+  */
+val TFmatrix = dataProcess.makeTFMatrix(trainingSet.setStopWords)
+/**
+  * Creates TFIDF matrix through TF matrix
+  */
+val TFIDFMatrix = dataProcess.makeTFIDFMatrix(TFmatrix)
+/**
+  * Saves in csv file the matrix TFIDF
+  */
+dataProcess.saveToFile(fileName.fileMatrixTFIDF, TFIDFMatrix)
+*/
 
-//Converts all categorizations (ham or spam as 0 and 1) into a Dense Vector
-val trainingSetVector = DenseVector(trainingSet.map(x => x._1).toArray)
+/**
+  * Read the matrix created in advance and save it in a function
+  */
+val TFIDFMatrixCV = dataProcess.readMatrixFromFile(fileName.fileMatrixTFIDF)
 
-//Load stopwords list from file
-lazy val stopWordsList = readListFromFile("src\\main\\resources\\spamdata\\stopWords.txt")
+/**
+  * Class that processes the cross-validation set
+  */
+val crossValidationSet = new ProcessSet(fileName.fileStopWords, fileName.fileCrossValidation)
 
-//Apply stemmer to stopwords
-lazy val stemmedStopWords = applyStemmer(stopWordsList)
+/**
+  * Processing the cross-validation set
+  * Example:
+  * Input: (ham,"When did you get to the library")
+  * Output: (0,librari)
+  */
+val cvSetStopWords = crossValidationSet.setStopWords
 
-//Convert all characters to lower case
-val trainingSetLower = uppertoLower(trainingSet)
+/**
+  * Applying the stemmer function to some specific words that strongly indicate spam messages
+  */
+val specificKeywords = dataProcess.applyStemmer(specificWords.commonSpamWords)
 
-//Generalize data into a specific group of words
-val trainingReplace = replaceOverall(trainingSetLower)
+/**
+  * Function that applies a decision tree through several features
+  * (p.e length, number of specific word, upper cased words, ...)
+  */
+val decisionT = DenseVector(cvSetStopWords.map(x => new DecisionTree(x._2,
+  dataProcess.applyStemmer(specificKeywords)).decisionTreeTargetString).toArray)
 
-//Remove all punctuation
-val trainingSetPunctuation = takePunctuation(trainingReplace)
+/**
+  * Evaluation of results achieved with the decision tree
+  * (False Positive, False Negative, True Positive, True Negative,
+  * Accuracy, Precision, Recall, F1-Score)
+  */
+  dataProcess.evaluationMetrics(crossValidationSet.setVector, decisionT)
 
-//Apply stemmer to the list of sentences (string) and merge it with the correspondent category (ham -> 0 or spam ->1)
-val trainingStemmed = trainingSetPunctuation.map(x => x._1).zip(applyStemmer(trainingSetPunctuation.map(x => x._2)))
+/**
+  * Read list of words that were achieved in the training set data after filtered
+  */
+val listOfWords = dataProcess.readListFromFile(fileName.fileListOfWords)
 
-//Remove stopwords from training set
-val trainingSetStopWords = takeStopWords(stemmedStopWords, trainingStemmed)
-
-//Make term frequency matrix from target set
-val termFrequencyMatrix = makeTFMatrix(trainingSetStopWords)
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////CROSS-VALIDATION///////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//Read the matrix created and saved in function
-lazy val TFIDFMatrixCV = readMatrixFromFile(spamDataPath + "/matrixTFIDF.csv")
-
-//Read cross validation set
-val cvList = readListFromFile(spamDataPath + "/crossvalidation.dat")
-
-//Converts cross validation set in a categorize list
-val cvSet = parseA(cvList)
-
-//Turn the characters to lower case
-val cvSetLower = uppertoLower(cvSet)
-
-//Generalize data into a specific group of words
-val cvReplace = replaceOverall(cvSetLower)
-
-//Remove all punctuation
-val cvSetPonctuation = takePunctuation(cvReplace)
-
-//Creates an ordered list of the categories (spam->1 or ham ->0)(int) for each string
-val cvCategories = cvSetPonctuation.map(x => x._1)
-
-// Converts cvCatategories into a Dense Vector
-val cvCategoriesVector = DenseVector(cvCategories.toArray)
-
-//Apply stemmer to the list of sentences (string) and merge it with the correspondent category (ham -> 0 or spam ->1)
-val cvStemmed = cvCategories.zip(applyStemmer(cvSetPonctuation.map(x => x._2)))
-
-//Remove stopwords from training set
-val cvSetStopWords = takeStopWords(stemmedStopWords, cvStemmed)
-
-//Read list of Words that were achieved in the training set data
-val listOfWords = readListFromFile(spamDataPath + "/listOfWords.dat")
-
-//Maps each word with the value 0
+/**
+  * Maps each word with the value 0
+  */
 val mappedLisfOfWords: Map[String, Double] = listOfWords.map(x => x -> 0.0).toMap
 
-//List of words of every sentence without repetitions, without empty strings
-val listOfCVSentences = cvSetStopWords.map(x => tokenization(x._2).filterNot(x => x.equals("")))
+/**
+  * List of words of every sentence without repetitions, without empty strings
+  */
+val listOfCVSentences = cvSetStopWords.map(x =>
+  dataProcess.tokenization(x._2).filterNot(x => x.equals("")))
 
-//Filter, from the cross validation set, the sentences that are not considered in the list of Words
-//created from the training set
-val listOfCVintersected: List[List[String]] = listOfCVSentences.map(x => x.filter(y => listOfWords.contains(y)))
+/**
+  * Filter, from the cross validation set, the sentences that are not considered
+  * in the list of Words created from the training set
+  */
+val listOfCVintersected: List[List[String]] = listOfCVSentences.map(x =>
+  x.filter(y => listOfWords.contains(y)))
 
-//Every words is attributed the value of converted sentence into a map where each vector
-//maps the proportion of the words presented in a specific sentence (Term Frequency)
-val convertedMatrix: DenseMatrix[Double] = convertedMatrixList(listOfCVintersected, mappedLisfOfWords)
+/**
+  * Every words is attributed the value of converted sentence into a map where each vector
+  * maps the proportion of the words presented in a specific sentence (Term Frequency)
+  */
+val convertedMatrix: DenseMatrix[Double] =
+  dataProcess.convertedMatrixList(listOfCVintersected, mappedLisfOfWords)
 
-//This function will calculate the cosine similarity between the convertedMatrix and TFIDF Matrix
-//It will return a matrix where each row represents the different values between a string j of cross validation and the
-//various strings of the training set
-val cosineMatrix = cosineVector(TFIDFMatrixCV, convertedMatrix)
+/**
+  * Class that processes the cosine tree
+  */
+val cosineTree = new CosineTree(TFIDFMatrixCV, convertedMatrix, listOfCVintersected, trainingSet)
 
-//For every vector of the cosineVector list, it is calculated the position of the maximum value.
-//This position corresponds to the most similar string of training data with the string of CV data considered
-val positionsC: DenseVector[Int] = cosineMatrix(*, ::).map(row => argmax(row))
+/**
+  * Evaluation of results achieved with the cosine tree
+  * (False Positive, False Negative, True Positive, True Negative,
+  * Accuracy, Precision, Recall, F1-Score)
+  */
+  dataProcess.evaluationMetrics(crossValidationSet.setVector, cosineTree.finalCategorizationC)
 
-//For every vector of the cosineVector list, it is calculated the maximum value.
-//This value corresponds to the most similar string of training data with the string of CV data considered
-val valuesC: DenseVector[Double] = cosineMatrix(*, ::).map(row => max(row))
+/**
+  * Class that processes the euclidean tree
+  */
+val euclideanTree = new EuclideanTree(TFIDFMatrixCV, convertedMatrix, listOfCVintersected, trainingSet)
 
-//Counts the number of words in the filtered cross validation
-val cvLength = countLength(cvSetStopWords).map(x => x._2)
+/**
+  * Evaluation of results achieved with the euclidean tree
+  * (False Positive, False Negative, True Positive, True Negative,
+  * Accuracy, Precision, Recall, F1-Score)
+  */
+dataProcess.evaluationMetrics(crossValidationSet.setVector, euclideanTree.finalCategorizationE)
 
-//Gets the categorization of the most similar cosine vectors between cross validation set and training set
-val categorizePositions = DenseVector((0 until valuesC.length).map(i =>
+/**
+  * Matching the three trees calculated applying Random Forest "algorithm"
+ */
+val trueCategorization = (cosineTree.finalCategorizationC + euclideanTree.finalCategorizationE + decisionT).map(
+  {
+    case 0 => 0
+    case 1 => 0
+    case 2 => 1
+    case 3 => 1
+  }
+)
 
-  //If cosine similatiry is less then 0.4 and the correspondent sentence has less than 8 words it´s classified has ham
-  if (valuesC.data(i) < 0.40 && (cvLength.drop(i).head < 8)) 0
-  else trainingSetVector.data(positionsC.data(i))).toArray)
+println("FINAL METRICS")
+/**
+  * Evaluation of results achieved with the euclidean tree
+  * (False Positive, False Negative, True Positive, True Negative,
+  * Accuracy, Precision, Recall, F1-Score)
+  */
+dataProcess.evaluationMetrics(crossValidationSet.setVector, trueCategorization)
 
-//Performs evaluation metrics between the real categorization value and the predicted value
-evaluationMetrics(cvCategoriesVector, categorizePositions)
-
-//Final Runtime time
+/**
+  * Running time in seconds
+  */
 val finalTime = System.currentTimeMillis
-
-//Run time in seconds
-val timeRunning = (finalTime - inicialTime) / 1000 + " seconds"
+val timeRunning = (finalTime - inicialTime).toDouble / 1000 + " seconds"
