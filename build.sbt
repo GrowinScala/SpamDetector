@@ -16,6 +16,8 @@ libraryDependencies ++= Seq(
 
   // The visualization library is distributed separately as well.
   // It depends on LGPL code
-  "org.apache.spark" %% "spark-core" % "2.4.0"
+  "org.apache.spark" %% "spark-core" % "2.4.0",
+  "com.typesafe.akka" %% "akka-http"   % "10.1.5",
+  "com.typesafe.akka" %% "akka-stream" % "2.5.12" 
 )
 resolvers += "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/"

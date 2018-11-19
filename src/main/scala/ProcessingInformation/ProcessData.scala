@@ -15,11 +15,11 @@ class ProcessData {
   val specificWords = new SpecificWords()
 
   /**
-    * Saves a List of something to target path
-    * @param pathName
-    * @param targetSet
-    * @tparam T
-    */
+   * Saves a List of something to target path
+   * @param pathName
+   * @param targetSet
+   * @tparam T
+   */
   def saveToFile[T](pathName: String, targetSet: List[T]): Unit = {
     val file = new File(pathName)
     val bw = new BufferedWriter(new FileWriter(file))
@@ -30,10 +30,10 @@ class ProcessData {
   }
 
   /**
-    * Saves a List of something to target path
-    * @param pathName
-    * @param matrix
-    */
+   * Saves a List of something to target path
+   * @param pathName
+   * @param matrix
+   */
   def saveToFile(pathName: String, matrix: DenseMatrix[Double]): Unit = {
     breeze.linalg.csvwrite(new File(pathName), matrix, separator = ' ')
   }
@@ -41,20 +41,20 @@ class ProcessData {
   val threshV = new ThresholdValues()
 
   /**
-    * Function used to split the spam.dat into three different groups, then save those groups into 3 different sets:
-    * 1 - Training Set, containing 60% of the data
-    * 2 - Cross-Validation Set, containing 20% of the data
-    * 3 - Test Set, containing 20% of the data
-    * @param fileName
-    * @param trainingSetPath
-    * @param crossValidationSetPath
-    * @param testSetPath
-    */
+   * Function used to split the spam.dat into three different groups, then save those groups into 3 different sets:
+   * 1 - Training Set, containing 60% of the data
+   * 2 - Cross-Validation Set, containing 20% of the data
+   * 3 - Test Set, containing 20% of the data
+   * @param fileName
+   * @param trainingSetPath
+   * @param crossValidationSetPath
+   * @param testSetPath
+   */
   def splitA(fileName: String, trainingSetPath: String, crossValidationSetPath: String, testSetPath: String): Unit = {
     val bSource = Source.fromFile(fileName).getLines().toList
     val bShuffle = scala.util.Random.shuffle(bSource)
     /**
-      * Dividing the data into 10 parts in order to be easier to split it into the different sets
+     * Dividing the data into 10 parts in order to be easier to split it into the different sets
      */
     val sizeBuff: Int = bShuffle.size / threshV.tenparts
     val trainingSet = bShuffle.slice(threshV.zeroparts, sizeBuff * threshV.sixparts)
@@ -66,52 +66,52 @@ class ProcessData {
   }
 
   /**
-    * Separates line into classification and message
-    * @param line
-    * @return
-    */
+   * Separates line into classification and message
+   * @param line
+   * @return
+   */
   def parse(line: String): List[(Int, String)] = {
     /**
-      * Finds index of first comma
-      */
+     * Finds index of first comma
+     */
     val index = line.indexOf(",")
     /**
-      * Convert spam into 1 and ham into 0, separated by first comma
-      */
+     * Convert spam into 1 and ham into 0, separated by first comma
+     */
     val classification = line.substring(0, index) match {
-      case "ham" => threshV.categorizeHam
+      case "ham"  => threshV.categorizeHam
       case "spam" => threshV.categorizeSpam
     }
     /**
-      * Separate the text message
-      */
+     * Separate the text message
+     */
     val text = line.takeRight(line.length - index - 1)
     List((classification, text))
   }
 
   /**
-    * Reads from target path name, return a list of strings
-    * @param pathName
-    * @return
-    */
+   * Reads from target path name, return a list of strings
+   * @param pathName
+   * @return
+   */
   def readListFromFile(pathName: String): List[String] = {
     Source.fromFile(pathName).getLines().toList
   }
 
   /**
-    * Reads from target path name, return a list of strings
-    * @param pathName
-    * @return
-    */
+   * Reads from target path name, return a list of strings
+   * @param pathName
+   * @return
+   */
   def readMatrixFromFile(pathName: String): DenseMatrix[Double] = {
     breeze.linalg.csvread(new File(pathName), separator = ' ')
   }
 
   /**
-    * Separates all lines from target file into classification and message
-    * @param targetSet
-    * @return
-    */
+   * Separates all lines from target file into classification and message
+   * @param targetSet
+   * @return
+   */
   def parseA(targetSet: List[String]): List[(Int, String)] = {
     val bufferedSource = targetSet
     def Acc(acc: List[String]): List[(Int, String)] = {
@@ -136,51 +136,51 @@ class ProcessData {
     targetSet.map(x => (x._1, x._2.replaceAll(regex.regexPunctuation, " ")))
 
   /**
-    * Separates each sentence by the words that compose it in different strings
-    * @param targetMessage
-    * @return
-    */
+   * Separates each sentence by the words that compose it in different strings
+   * @param targetMessage
+   * @return
+   */
   def tokenization(targetMessage: String): List[String] = {
     targetMessage.split(" ").toList
   }
 
   /**
-    * Remove all words that match with the words contained in stopWords list
-    * @param stopWords
-    * @param targetSet
-    * @return
-    */
+   * Remove all words that match with the words contained in stopWords list
+   * @param stopWords
+   * @param targetSet
+   * @return
+   */
   def takeStopWords(stopWords: List[String], targetSet: List[(Int, String)]): List[(Int, String)] = {
     targetSet.map(x => (x._1, tokenization(x._2).filterNot(stopWords.contains(_)).mkString(" "))) //.filter(stopWordsList))
   }
 
   /**
-    * Turn all upper characters to lower
-    * @param targetSet
-    * @return
-    */
+   * Turn all upper characters to lower
+   * @param targetSet
+   * @return
+   */
   def uppertoLower(targetSet: List[(Int, String)]): List[(Int, String)] = {
     targetSet.map(x => (x._1, x._2.toLowerCase()))
   }
 
   /**
-    * Converts words using Porter stemmer
-    * @param targetSet
-    * @return
-    */
+   *
+   * @param targetSet
+   * Converts words using Porter stemmer
+   * @return
+   */
   def applyStemmer(targetSet: List[String]): List[String] = {
     targetSet.map(x => tokenization(x).map(y => Stemmer.Stemmer.stem(y)).mkString(" "))
   }
 
-
   /**
-    * Simplify data by grouping in a *word* (Strings must be lower case)
-    * Example:
-    * Input: 910000000
-    * Output: " PHONENUMBER "
-    * @param targetSet
-    * @return
-    */
+   * Simplify data by grouping in a *word* (Strings must be lower case)
+   * Example:
+   * Input: 910000000
+   * Output: " PHONENUMBER "
+   * @param targetSet
+   * @return
+   */
   def replaceOverall(targetSet: List[(Int, String)]): List[(Int, String)] = {
     targetSet.map(x => (x._1, x._2
       .replaceAll(regex.regexWebsite, " " + specificWords.WEBSITE + " ")
@@ -196,67 +196,66 @@ class ProcessData {
       .replaceAll(regex.regexRepetition, " " + specificWords.REPETITION + " ")))
   }
 
-
   def listOfWordsF(targetSet: List[(Int, String)]): List[String] = {
     /**
-      * List of sentences from target set, without empty strings
-      */
+     * List of sentences from target set, without empty strings
+     */
     val listOfSentences = targetSet.map(x => tokenization(x._2).filterNot(x => x.equals("")))
     /**
-      * List of words of every sentence without repetitions, without empty strings
-      */
+     * List of words of every sentence without repetitions, without empty strings
+     */
     val listOfWords = targetSet.foldLeft(List(""))((s, x) => tokenization(x._2) ++ s).distinct.sorted.filterNot(x => x.equals(""))
     listOfWords
   }
 
   /**
-    * Make term frequency matrix from target set
-    * @param targetSet
-    * @return
-    */
+   * Make term frequency matrix from target set
+   * @param targetSet
+   * @return
+   */
   def makeTFMatrix(targetSet: List[(Int, String)]): DenseMatrix[Double] = {
     /**
-      * List of sentences from target set, without empty strings
-      */
+     * List of sentences from target set, without empty strings
+     */
     val listOfSentences = targetSet.map(x => tokenization(x._2).filterNot(x => x.equals("")))
     /**
-      * List of words of every sentence without repetitions, without empty strings
-      */
+     * List of words of every sentence without repetitions, without empty strings
+     */
     val listOfWords = targetSet.foldLeft(List(""))((s, x) => tokenization(x._2) ++ s).distinct.sorted.filterNot(x => x.equals(""))
     /**
-      * Converted words into a map pointing to 0
-      */
+     * Converted words into a map pointing to 0
+     */
     val mappedLisfOfWords: Map[String, Double] = listOfWords.map(x => x -> 0.0).toMap
     saveToFile(fileName.fileListOfWords, mappedLisfOfWords.keys.toList)
     /**
-      * Every words is atributted the value of converted sentence into a map
-      * Where each vector maps the proportion of the words presented in a specific sentence(Term Frequency)
-      */
+     * Every words is atributted the value of converted sentence into a map
+     * Where each vector maps the proportion of the words presented in a specific sentence(Term Frequency)
+     */
     val convertedVectorList: List[DenseVector[Double]] = listOfSentences.map(x =>
       DenseVector((mappedLisfOfWords ++ x.foldLeft(Map.empty[String, Double]) {
         (count, word) => count + (word -> (count.getOrElse(word, 0.0) + 1.0))
       }).values.toArray))
     /**
-      * Restructure a list of vectors into a matrix
-      */
+     * Restructure a list of vectors into a matrix
+     */
     val matrix = DenseMatrix(convertedVectorList: _*)
     /**
-      * Transpose matrix
-      */
+     * Transpose matrix
+     */
     matrix.t
   }
 
   /**
-    * Calculates TF*IDF matrix
-    * @param TFMatrix
-    * @return
-    */
+   * Calculates TF*IDF matrix
+   * @param TFMatrix
+   * @return
+   */
   def makeTFIDFMatrix(TFMatrix: DenseMatrix[Double]): DenseMatrix[Double] = {
     val TFMatrixCols = TFMatrix.cols
     /**
-      * Maps each row of a matrix to is value times log( 1+ total number of columns/ number of documents
-      * that contains the term at least once)
-      */
+     * Maps each row of a matrix to is value times log( 1+ total number of columns/ number of documents
+     * that contains the term at least once)
+     */
     val TFIDFMatrix = TFMatrix(*, ::).map(row => {
       val countRow = row.findAll(x => x != 0.0).length
       row.map(x => if (x != 0.0) x * sigmoid(TFMatrixCols.toDouble / countRow) else x)
@@ -265,33 +264,33 @@ class ProcessData {
   }
 
   /**
-    * This function will calculate the cosine similarity between the convertedMatrix and TFIDF Matrix
-    * It will return a matrix where each row represents the different values between a string j of cross
-    * validation and the various strings of the training set
-    * @param TFIDFMatrixCV
-    * @param convertedMatrix
-    * @return
-    */
+   * This function will calculate the cosine similarity between the convertedMatrix and TFIDF Matrix
+   * It will return a matrix where each row represents the different values between a string j of cross
+   * validation and the various strings of the training set
+   * @param TFIDFMatrixCV
+   * @param convertedMatrix
+   * @return
+   */
   def cosineVector(TFIDFMatrixCV: DenseMatrix[Double], convertedMatrix: DenseMatrix[Double]): DenseMatrix[Double] =
     convertedMatrix(::, *).map(colsCV => TFIDFMatrixCV(::, *).map(cols => cosineSimilarity(colsCV, cols)).inner).toDenseMatrix.t
 
   /**
-    * This method takes 2 equal length arrays of doubles
-    * It returns a double representing similarity of the 2 arrays
-    * 0.9925 would be 99.25% similar
-    * (x dot y)/||X|| ||Y||
-    * @param x
-    * @param y
-    * @return
-    */
+   * This method takes 2 equal length arrays of doubles
+   * It returns a double representing similarity of the 2 arrays
+   * 0.9925 would be 99.25% similar
+   * (x dot y)/||X|| ||Y||
+   * @param x
+   * @param y
+   * @return
+   */
   def cosineSimilarity(x: DenseVector[Double], y: DenseVector[Double]): Double = {
     /**
-      * Return the dot product of the 2 arrays
-      * e.g. (a[0]*b[0])+(a[1]*a[2])
-      * @param x
-      * @param y
-      * @return
-      */
+     * Return the dot product of the 2 arrays
+     * e.g. (a[0]*b[0])+(a[1]*a[2])
+     * @param x
+     * @param y
+     * @return
+     */
     def dotProduct(x: DenseVector[Double], y: DenseVector[Double]): Double = {
       x dot y
     }
@@ -306,12 +305,12 @@ class ProcessData {
   }
 
   /**
-    * Every words is attributed the value of converted sentence into a map where each vector
-    * maps the proportion of the words presented in a specific sentence (Term Frequency)
-    * @param listOfCVintersected
-    * @param mappedLisfOfWords
-    * @return
-    */
+   * Every words is attributed the value of converted sentence into a map where each vector
+   * maps the proportion of the words presented in a specific sentence (Term Frequency)
+   * @param listOfCVintersected
+   * @param mappedLisfOfWords
+   * @return
+   */
   def convertedMatrixList(listOfCVintersected: List[List[String]], mappedLisfOfWords: Map[String, Double]): DenseMatrix[Double] = {
     def convertedAux(listAux: List[List[String]], mappedListAux: Map[String, Double]): DenseMatrix[Double] = {
       if (listAux.tail.isEmpty) DenseMatrix((mappedLisfOfWords ++ listAux.head.foldLeft(Map.empty[String, Double]) {
@@ -326,11 +325,11 @@ class ProcessData {
   }
 
   /**
-    * Function that calculates the Euclidean distance between two vectors
-    * @param x
-    * @param y
-    * @return
-    */
+   * Function that calculates the Euclidean distance between two vectors
+   * @param x
+   * @param y
+   * @return
+   */
   def euclidianDistance(x: DenseVector[Double], y: DenseVector[Double]): Double = {
     def dotProduct(x: DenseVector[Double], y: DenseVector[Double]): Double = {
       x dot y
@@ -340,20 +339,20 @@ class ProcessData {
   }
 
   /**
-    * Applies Euclidean distance to every collumn of both matrices
-    * @param TFIDFMatrixCV
-    * @param convertedMatrix
-    * @return
-    */
+   * Applies Euclidean distance to every collumn of both matrices
+   * @param TFIDFMatrixCV
+   * @param convertedMatrix
+   * @return
+   */
   def distanceVector(TFIDFMatrixCV: DenseMatrix[Double], convertedMatrix: DenseMatrix[Double]): DenseMatrix[Double] = {
     convertedMatrix(::, *).map(colsCV => TFIDFMatrixCV(::, *).map(cols => euclidianDistance(colsCV, cols)).inner).toDenseMatrix.t
   }
 
   def evaluationMetrics(cvCategories: DenseVector[Int], catPositions: DenseVector[Int]): Unit = {
     /**
-      * The vector cvCategories is multiplied by 1 and summed with the vector catPositions that is multiplied by 2
-      * This will help us to distinct the different cases (0,0), (0,1), (1, 0) and (1, 1)
-      */
+     * The vector cvCategories is multiplied by 1 and summed with the vector catPositions that is multiplied by 2
+     * This will help us to distinct the different cases (0,0), (0,1), (1, 0) and (1, 1)
+     */
     val scoreVector = cvCategories + catPositions * 2
     val falsePosIndex = (0 until scoreVector.length).map(i => if (scoreVector.data(i) == 2) i).toSet
     val falseNegIndex = (0 until scoreVector.length).map(i => if (scoreVector.data(i) == 1) i).toSet
@@ -376,22 +375,22 @@ class ProcessData {
   }
 
   /**
-    * Functions that verifies if the intersection of two lists of strings is greater or equal than 3
-    * @param stringList
-    * @param targetStringList
-    * @return
-    */
+   * Functions that verifies if the intersection of two lists of strings is greater or equal than 3
+   * @param stringList
+   * @param targetStringList
+   * @return
+   */
   def containsString(stringList: List[String], targetStringList: List[String]): Boolean = {
     stringList.intersect(targetStringList).length >= threshV.string3
   }
 
   /**
-    * Function that categorize the list of messages as ham or spam through the decision tree constructed
-    * @param categorizePositionsE
-    * @param listOfCVintersected
-    * @param specificKeywords
-    * @return
-    */
+   * Function that categorize the list of messages as ham or spam through the decision tree constructed
+   * @param categorizePositionsE
+   * @param listOfCVintersected
+   * @param specificKeywords
+   * @return
+   */
   def decisionTree(categorizePositionsE: DenseVector[Int], listOfCVintersected: List[List[String]], specificKeywords: List[String]): DenseVector[Int] = {
     val categorizedWithList = categorizePositionsE.data.zip(listOfCVintersected)
     val stemmedSpecificKeywords = applyStemmer(specificKeywords)
@@ -400,24 +399,24 @@ class ProcessData {
   }
 
   /**
-    * Verifies if the intersection of two Lists of strings is equal or greater than 3
-    * @param thresh
-    * @param targetString
-    * @param specificKeywords
-    * @return
-    */
+   * Verifies if the intersection of two Lists of strings is equal or greater than 3
+   * @param thresh
+   * @param targetString
+   * @param specificKeywords
+   * @return
+   */
   def containsMoreString(thresh: Int, targetString: List[String], specificKeywords: List[String]): Boolean = {
     val stemmedSpecificKeywords = applyStemmer(specificKeywords)
     targetString.intersect(stemmedSpecificKeywords).length >= thresh
   }
 
   /**
-    * Verifies if the intersection of two Lists of strings is equal or less than 3
-    * @param thresh
-    * @param targetString
-    * @param specificKeywords
-    * @return
-    */
+   * Verifies if the intersection of two Lists of strings is equal or less than 3
+   * @param thresh
+   * @param targetString
+   * @param specificKeywords
+   * @return
+   */
   def containsLessString(thresh: Int, targetString: List[String], specificKeywords: List[String]): Boolean = {
     val stemmedSpecificKeywords = applyStemmer(specificKeywords)
     targetString.intersect(stemmedSpecificKeywords).length <= thresh
