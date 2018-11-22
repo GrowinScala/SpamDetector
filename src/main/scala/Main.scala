@@ -83,7 +83,7 @@ class Main(SMS: String) {
     * maps the proportion of the words presented in a specific sentence (Term Frequency)
     */
   val convertedMatrix: DenseMatrix[Double] =
-    dataProcess.convertedMatrixList(List(listOfIntersected), mappedLisfOfWords)
+    dataProcess.convertedMatrixHead(listOfIntersected, mappedLisfOfWords).t
 
   /**
     * Class that processes the cosine tree

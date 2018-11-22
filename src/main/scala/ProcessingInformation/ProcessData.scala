@@ -226,7 +226,6 @@ class ProcessData {
      * Converted words into a map pointing to 0
      */
     val mappedLisfOfWords: Map[String, Double] = listOfWords.map(x => x -> 0.0).toMap
-    println(mappedLisfOfWords.keys.toList.length)
     saveToFile(listOfWordsPath, mappedLisfOfWords.keys.toList)
     /**
      * Every words is atributted the value of converted sentence into a map
@@ -268,12 +267,12 @@ class ProcessData {
    * This function will calculate the cosine similarity between the convertedMatrix and TFIDF Matrix
    * It will return a matrix where each row represents the different values between a string j of cross
    * validation and the various strings of the training set
-   * @param TFIDFMatrixCV
+   * @param TFIDFMatrix
    * @param convertedMatrix
    * @return
    */
-  def cosineVector(TFIDFMatrixCV: DenseMatrix[Double], convertedMatrix: DenseMatrix[Double]): DenseMatrix[Double] =
-    convertedMatrix(::, *).map(colsCV => TFIDFMatrixCV(::, *).map(cols => cosineSimilarity(colsCV, cols)).inner).toDenseMatrix.t
+  def cosineVector(TFIDFMatrix: DenseMatrix[Double], convertedMatrix: DenseMatrix[Double]): DenseMatrix[Double] =
+    convertedMatrix(::, *).map(cols1 => TFIDFMatrix(::, *).map(cols2 => cosineSimilarity(cols1, cols2)).inner).toDenseMatrix.t
 
   /**
    * This method takes 2 equal length arrays of doubles
@@ -305,24 +304,27 @@ class ProcessData {
     else 0
   }
 
+  def convertedMatrixHead(listAux: List[String] ,mappedLisfOfWords: Map[String, Double]): DenseMatrix[Double] = {
+    DenseMatrix((mappedLisfOfWords ++ listAux.foldLeft(Map.empty[String, Double]) {
+      (count, word) => count + (word -> (count.getOrElse(word, 0.0) + 1.0))
+    }).values.toArray)
+  }
   /**
    * Every words is attributed the value of converted sentence into a map where each vector
    * maps the proportion of the words presented in a specific sentence (Term Frequency)
-   * @param listOfCVintersected
+   * @param listOfIntersected
    * @param mappedLisfOfWords
    * @return
    */
-  def convertedMatrixList(listOfCVintersected: List[List[String]], mappedLisfOfWords: Map[String, Double]): DenseMatrix[Double] = {
+  def convertedMatrixList(listOfIntersected: List[List[String]], mappedLisfOfWords: Map[String, Double]): DenseMatrix[Double] = {
     def convertedAux(listAux: List[List[String]], mappedListAux: Map[String, Double]): DenseMatrix[Double] = {
-      if (listAux.tail.isEmpty) DenseMatrix((mappedLisfOfWords ++ listAux.head.foldLeft(Map.empty[String, Double]) {
-        (count, word) => count + (word -> (count.getOrElse(word, 0.0) + 1.0))
-      }).values.toArray)
+      if (listAux.tail.isEmpty) convertedMatrixHead(listAux.head ,mappedLisfOfWords)
       else
         DenseMatrix.vertcat(DenseMatrix((mappedLisfOfWords ++ listAux.head.foldLeft(Map.empty[String, Double]) {
           (count, word) => count + (word -> (count.getOrElse(word, 0.0) + 1.0))
         }).values.toArray), convertedAux(listAux.tail, mappedListAux))
     }
-    convertedAux(listOfCVintersected, mappedLisfOfWords).t
+    convertedAux(listOfIntersected, mappedLisfOfWords).t
   }
 
   /**
@@ -341,20 +343,20 @@ class ProcessData {
 
   /**
    * Applies Euclidean distance to every collumn of both matrices
-   * @param TFIDFMatrixCV
+   * @param TFIDFMatrix
    * @param convertedMatrix
    * @return
    */
-  def distanceVector(TFIDFMatrixCV: DenseMatrix[Double], convertedMatrix: DenseMatrix[Double]): DenseMatrix[Double] = {
-    convertedMatrix(::, *).map(colsCV => TFIDFMatrixCV(::, *).map(cols => euclidianDistance(colsCV, cols)).inner).toDenseMatrix.t
+  def distanceVector(TFIDFMatrix: DenseMatrix[Double], convertedMatrix: DenseMatrix[Double]): DenseMatrix[Double] = {
+    convertedMatrix(::, *).map(cols1 => TFIDFMatrix(::, *).map(cols2 => euclidianDistance(cols1, cols2)).inner).toDenseMatrix.t
   }
 
-  def evaluationMetrics(cvCategories: DenseVector[Int], catPositions: DenseVector[Int]): Unit = {
+  def evaluationMetrics(categories: DenseVector[Int], catPositions: DenseVector[Int]): Unit = {
     /**
-     * The vector cvCategories is multiplied by 1 and summed with the vector catPositions that is multiplied by 2
+     * The vector Categories is multiplied by 1 and summed with the vector catPositions that is multiplied by 2
      * This will help us to distinct the different cases (0,0), (0,1), (1, 0) and (1, 1)
      */
-    val scoreVector = cvCategories + catPositions * 2
+    val scoreVector = categories + catPositions * 2
     val falsePosIndex = (0 until scoreVector.length).map(i => if (scoreVector.data(i) == 2) i).toSet
     val falseNegIndex = (0 until scoreVector.length).map(i => if (scoreVector.data(i) == 1) i).toSet
     val truePosIndex = (0 until scoreVector.length).map(i => if (scoreVector.data(i) == 3) i).toSet
@@ -369,7 +371,7 @@ class ProcessData {
     println(s"False Negative indexes: $falseNegIndex")
     println(s"True Positive indexes: $truePosIndex")
     println(s"True Negative indexes: $trueNegIndex")
-    println(s"Accuracy (% of predictions that were correct): ${(truePos + trueNeg) / cvCategories.activeSize}")
+    println(s"Accuracy (% of predictions that were correct): ${(truePos + trueNeg) / categories.activeSize}")
     println(s"Precision (% of emails classified as spam that were actually spam): ${truePos / (truePos + falsePos)}")
     println(s"Recall (% of spam emails that were predicted correctly): ${truePos / (truePos + falseNeg)}")
     println(s"F1-score: ${2 * truePos / (2 * truePos + falseNeg + falsePos)}")
@@ -388,12 +390,12 @@ class ProcessData {
   /**
    * Function that categorize the list of messages as ham or spam through the decision tree constructed
    * @param categorizePositionsE
-   * @param listOfCVintersected
+   * @param listOfIntersected
    * @param specificKeywords
    * @return
    */
-  def decisionTree(categorizePositionsE: DenseVector[Int], listOfCVintersected: List[List[String]], specificKeywords: List[String]): DenseVector[Int] = {
-    val categorizedWithList = categorizePositionsE.data.zip(listOfCVintersected)
+  def decisionTree(categorizePositionsE: DenseVector[Int], listOfIntersected: List[List[String]], specificKeywords: List[String]): DenseVector[Int] = {
+    val categorizedWithList = categorizePositionsE.data.zip(listOfIntersected)
     val stemmedSpecificKeywords = specificKeywords.map(applyStemmer(_))
     val newCategorization = categorizedWithList.map(x => if (x._1 == threshV.categorizeHam && containsString(x._2, stemmedSpecificKeywords)) threshV.categorizeSpam else x._1)
     DenseVector(newCategorization)
