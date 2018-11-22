@@ -21,7 +21,6 @@ object MessageJsonSupport extends DefaultJsonProtocol with SprayJsonSupport {
   * Running server
   */
 object Server extends App {
-
   override def main(args: Array[String]) {
     /**
       * Setting host and port
@@ -39,7 +38,10 @@ object Server extends App {
     val route =
       post {
         entity(as[JsValue]) { json =>
-          complete(new Main(json.asJsObject.getFields("content").head.toString()).convertToResponse )
+          if(json.asJsObject.getFields("content").head.toString().length < 918)
+          complete(new Main(json.asJsObject.getFields("content").head.toString()).convertToResponse)
+          else complete("SMS exceeds number of characters")
+
         }
       }
 
@@ -47,5 +49,6 @@ object Server extends App {
       * Response to client
       */
     Http().bindAndHandle(route, host, port)
+
   }
 }

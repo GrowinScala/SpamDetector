@@ -56,10 +56,10 @@ class ProcessData {
     /**
      * Dividing the data into 10 parts in order to be easier to split it into the different sets
      */
-    val sizeBuff: Int = bShuffle.size / threshV.tenparts
-    val trainingSet = bShuffle.slice(threshV.zeroparts, sizeBuff * threshV.sixparts)
-    val crossValidation = bShuffle.slice(sizeBuff * threshV.sixparts, sizeBuff * threshV.eightparts)
-    val testSet = bShuffle.slice(sizeBuff * threshV.eightparts, sizeBuff * threshV.tenparts)
+    val sizeBuff: Int = bShuffle.size / threshV.tenParts
+    val trainingSet = bShuffle.slice(threshV.zeroParts, sizeBuff * threshV.sixParts)
+    val crossValidation = bShuffle.slice(sizeBuff * threshV.sixParts, sizeBuff * threshV.eightParts)
+    val testSet = bShuffle.slice(sizeBuff * threshV.eightParts, sizeBuff * threshV.tenParts)
     saveToFile(trainingSetPath, trainingSet)
     saveToFile(crossValidationSetPath, crossValidation)
     saveToFile(testSetPath, testSet)
