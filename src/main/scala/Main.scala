@@ -100,6 +100,7 @@ class Main(SMS: String) {
   /**
     * Matching the three trees calculated applying Random Forest "algorithm"
     */
+    println(cosineTree.finalCategorizationC,euclideanTree.finalCategorizationE,decisionT)
   val trueCategorization = (cosineTree.finalCategorizationC + euclideanTree.finalCategorizationE + decisionT).map(
     {
       case 0 => 0

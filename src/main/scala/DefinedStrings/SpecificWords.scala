@@ -24,6 +24,6 @@ class SpecificWords {
     "send", "sent", "ringtone", "free", "freemsg", "click", "chat", "offer",
     "won", "service", "lottery", "cash", "congrats", "win", "claim", "prize",
     "subscribe", "unsubscribe", "order", "call", "dial", "buy", "link",
-    "sale", "store", "visit", "poly", "credit")
+    "sale", "store", "visit", "poly", "credit", "debt", "debit", "info", "apply", "stop")
 
 }

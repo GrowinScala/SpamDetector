@@ -2,7 +2,7 @@
   * Set timer
   */
 val inicialTime: Long = System.currentTimeMillis
-val m = new Main("Where are you? At the mall? Call me")
+val m = new Main("Due to a new legislation, those struggling with debt can now apply to have it written off. For more information text the word INFO or to opt out text STOP")
 m.convertToResponse
 
 /**
