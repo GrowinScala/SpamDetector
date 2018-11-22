@@ -1,8 +1,8 @@
 package ProcessingInformation
 
-import java.io.{BufferedWriter, File, FileWriter}
+import java.io.{ BufferedWriter, File, FileWriter }
 
-import DefinedStrings.{FilesName, Regex, SpecificWords}
+import DefinedStrings.{ FilesName, Regex, SpecificWords }
 import DefinedValues.ThresholdValues
 import breeze.linalg._
 import breeze.numerics._
@@ -79,7 +79,7 @@ class ProcessData {
      * Convert spam into 1 and ham into 0, separated by first comma
      */
     val classification = line.substring(0, index) match {
-      case "ham"  => threshV.categorizeHam
+      case "ham" => threshV.categorizeHam
       case "spam" => threshV.categorizeSpam
     }
     /**
@@ -226,6 +226,7 @@ class ProcessData {
      * Converted words into a map pointing to 0
      */
     val mappedLisfOfWords: Map[String, Double] = listOfWords.map(x => x -> 0.0).toMap
+    println(mappedLisfOfWords.keys.toList.length)
     saveToFile(listOfWordsPath, mappedLisfOfWords.keys.toList)
     /**
      * Every words is atributted the value of converted sentence into a map

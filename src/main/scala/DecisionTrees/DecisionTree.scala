@@ -3,7 +3,7 @@ package DecisionTrees
 import DefinedStrings.{ Regex, SpecificWords }
 import DefinedValues.ThresholdValues
 
-class DecisionTree(targetSentence: String, specificKeywords: List[String]){
+class DecisionTree(targetSentence: String, specificKeywords: List[String]) {
 
   val regex = new Regex()
   val specificWords = new SpecificWords()

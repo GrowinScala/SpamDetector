@@ -2,8 +2,8 @@ package DefinedValues
 
 class ThresholdValues {
   /**
-    * Some threshold values defined to be used in the decision trees
-    */
+   * Some threshold values defined to be used in the decision trees
+   */
   val noIntersection = 0
   val intersection4 = 4
   val intersection3 = 3

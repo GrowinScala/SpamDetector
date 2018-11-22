@@ -1,4 +1,4 @@
-import DecisionTrees.{CosineTree, EuclideanTree, DecisionTree}
+import DecisionTrees.{CosineTree, DecisionTree, EuclideanTree}
 import DefinedStrings.{FilesName, SpecificWords}
 import ProcessingInformation.{ProcessData, ProcessSet}
 import breeze.linalg._
@@ -15,7 +15,7 @@ class Main(SMS: String) {
   /**
    * Class that processes data set
    */
-  val allSetProcessed = new ProcessSet(fileName.fileStopWords, fileName.fileAllSet)
+  lazy val allSetProcessed = new ProcessSet(fileName.fileStopWords, fileName.fileAllSet)
 
   /**
    * Creates matrix TF
@@ -28,13 +28,13 @@ class Main(SMS: String) {
   /**
    * Saves in csv file the matrix TFIDF
    */
-  dataProcess.saveToFile(fileName.dataSetfileMatrixTFIDF, TFIDFMatrix)
+  //dataProcess.saveToFile(fileName.dataSetfileMatrixTFIDF, TFIDFMatrix)
 
   /**
    * Read the matrix created in advance and save it in a function
    */
-  val dataSetTFIDFMatrixCV = dataProcess.readMatrixFromFile(fileName.dataSetfileMatrixTFIDF)
-
+  //val dataSetTFIDFMatrixCV = dataProcess.readMatrixFromFile(fileName.dataSetfileMatrixTFIDF)
+    val dataSetTFIDFMatrixCV = TFIDFMatrix
   /**
     * Process target SMS
     * Example:
@@ -76,8 +76,7 @@ class Main(SMS: String) {
     * Filter, from the cross validation set, the sentences that are not considered
     * in the list of Words created from the training set
     */
-  val listOfIntersected: List[String] = listOfSentences.map(x =>
-    x.filter(y => listOfWords.contains(y)))
+  val listOfIntersected: List[String] = listOfSentences.filter(x=> listOfWords.contains(x))
 
   /**
     * Every words is attributed the value of converted sentence into a map where each vector

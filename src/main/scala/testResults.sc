@@ -134,7 +134,7 @@ dataProcess.evaluationMetrics(crossValidationSet.setVector, euclideanTree.finalC
 val trueCategorization = (cosineTree.finalCategorizationC + euclideanTree.finalCategorizationE + decisionT).map(
   {
     case 0 => 0
-    case 1 => 0
+      case 1 => 0
     case 2 => 1
     case 3 => 1
   }

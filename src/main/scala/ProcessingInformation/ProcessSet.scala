@@ -47,6 +47,7 @@ class ProcessSet(stopWordsFileName: String, targetSetFileName: String) {
       setStopWords
     }
 
+
   val setProcessString = setParsed.map(x=> (x._1, processString(x._2)))
 
 

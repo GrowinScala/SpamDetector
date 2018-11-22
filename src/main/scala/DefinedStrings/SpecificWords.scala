@@ -17,8 +17,8 @@ class SpecificWords {
   val decisionTreeIntersect = List(WEBSITE, PHONENUMBER, MONEY)
 
   /**
-    * List of words considered specific and highly indicative of spam messages
-    */
+   * List of words considered specific and highly indicative of spam messages
+   */
   val commonSpamWords = decisionTreeIntersect ++ List(PER, "horny",
     "member", "download", "mobile", "delivery", "delivered", "reply", "text",
     "send", "sent", "ringtone", "free", "freemsg", "click", "chat", "offer",

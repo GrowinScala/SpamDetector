@@ -3,8 +3,8 @@ package DefinedStrings
 class Regex {
 
   /**
-    * Regex functions to identify some characteristics components of a message
-    */
+   * Regex functions to identify some characteristics components of a message
+   */
   val regexPunctuation = "\\p{Punct}"
   val regexWebsite = "(\\S*www\\.\\S*)|(\\S*\\.com\\S*)|(\\S+\\/\\S+\\/\\S+\\/\\S+)"
   val regexSmile = "(:" + regexPunctuation + "+)|(:\\w\\s+)"
