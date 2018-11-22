@@ -21,10 +21,12 @@ class Main(SMS: String) {
    * Creates matrix TF
    */
   val TFmatrix = dataProcess.makeTFMatrix(allSetProcessed.setProcessString,fileName.dataSetfileListOfWords)
+
   /**
    * Creates TFIDF matrix through TF matrix
    */
   val TFIDFMatrix = dataProcess.makeTFIDFMatrix(TFmatrix)
+
   /**
    * Saves in csv file the matrix TFIDF
    */
@@ -35,6 +37,7 @@ class Main(SMS: String) {
    */
   //val dataSetTFIDFMatrixCV = dataProcess.readMatrixFromFile(fileName.dataSetfileMatrixTFIDF)
     val dataSetTFIDFMatrixCV = TFIDFMatrix
+
   /**
     * Process target SMS
     * Example:
@@ -73,7 +76,7 @@ class Main(SMS: String) {
   val listOfSentences = dataProcess.tokenization(processedSMS).filterNot(x => x.equals(""))
 
   /**
-    * Filter, from the cross validation set, the sentences that are not considered
+    * Filter, from the SMS submitted, the sentences that are not considered
     * in the list of Words created from the training set
     */
   val listOfIntersected: List[String] = listOfSentences.filter(x=> listOfWords.contains(x))
@@ -90,12 +93,10 @@ class Main(SMS: String) {
     */
   val cosineTree = new CosineTree(dataSetTFIDFMatrixCV, convertedMatrix, List(listOfIntersected), allSetProcessed)
 
-
   /**
     * Class that processes the euclidean tree
     */
   val euclideanTree = new EuclideanTree(dataSetTFIDFMatrixCV, convertedMatrix, List(listOfIntersected), allSetProcessed)
-
 
   /**
     * Matching the three trees calculated applying Random Forest "algorithm"
@@ -117,5 +118,4 @@ class Main(SMS: String) {
     case 0  => "not spam"
     case 1 => "spam"
   }
-
 }

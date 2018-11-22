@@ -47,10 +47,7 @@ class ProcessSet(stopWordsFileName: String, targetSetFileName: String) {
       setStopWords
     }
 
-
   val setProcessString = setParsed.map(x=> (x._1, processString(x._2)))
-
-
 
   /**
     * Counts the number of words of every message, after all the changes creating a List of integers
