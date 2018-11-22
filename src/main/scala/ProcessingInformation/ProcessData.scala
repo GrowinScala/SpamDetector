@@ -122,8 +122,8 @@ class ProcessData {
   }
 
   // Counts the lenght of every message
-  def countLength(allSet: List[(Int, String)]): List[(Int, Int)] = {
-    allSet.map(x => (x._1, x._2.split(" ").length))
+  def countLength(allSet: String):  Int = {
+    allSet.split(" ").length
   }
 
   /**
@@ -132,8 +132,8 @@ class ProcessData {
    * @param targetSet
    * @return
    */
-  def takePunctuation(targetSet: List[(Int, String)]): List[(Int, String)] =
-    targetSet.map(x => (x._1, x._2.replaceAll(regex.regexPunctuation, " ")))
+  def takePunctuation(targetSet: String): String =
+    targetSet.replaceAll(regex.regexPunctuation, " ")
 
   /**
    * Separates each sentence by the words that compose it in different strings
@@ -150,8 +150,8 @@ class ProcessData {
    * @param targetSet
    * @return
    */
-  def takeStopWords(stopWords: List[String], targetSet: List[(Int, String)]): List[(Int, String)] = {
-    targetSet.map(x => (x._1, tokenization(x._2).filterNot(stopWords.contains(_)).mkString(" "))) //.filter(stopWordsList))
+  def takeStopWords(stopWords: List[String], targetSet: String): String = {
+    tokenization(targetSet).filterNot(stopWords.contains(_)).mkString(" ") //.filter(stopWordsList))
   }
 
   /**
@@ -159,8 +159,8 @@ class ProcessData {
    * @param targetSet
    * @return
    */
-  def uppertoLower(targetSet: List[(Int, String)]): List[(Int, String)] = {
-    targetSet.map(x => (x._1, x._2.toLowerCase()))
+  def uppertoLower(targetSet: String): String = {
+    targetSet.toLowerCase()
   }
 
   /**
@@ -169,8 +169,8 @@ class ProcessData {
    * Converts words using Porter stemmer
    * @return
    */
-  def applyStemmer(targetSet: List[String]): List[String] = {
-    targetSet.map(x => tokenization(x).map(y => Stemmer.Stemmer.stem(y)).mkString(" "))
+  def applyStemmer(targetSet: String): String = {
+    tokenization(targetSet).map(y => Stemmer.Stemmer.stem(y)).mkString(" ")
   }
 
   /**
@@ -181,8 +181,8 @@ class ProcessData {
    * @param targetSet
    * @return
    */
-  def replaceOverall(targetSet: List[(Int, String)]): List[(Int, String)] = {
-    targetSet.map(x => (x._1, x._2
+  def replaceOverall(targetSet: String): String = {
+    targetSet
       .replaceAll(regex.regexWebsite, " " + specificWords.WEBSITE + " ")
       .replaceAll(regex.regexSmile, " " + specificWords.SMILE + " ")
       .replaceAll(regex.regexTripleDot, " " + specificWords.TRIPLEDOT + " ")
@@ -193,7 +193,7 @@ class ProcessData {
       .replaceAll(regex.regexMoney, " " + specificWords.MONEY + " ")
       .replaceAll(regex.regexDate, " ")
       .replaceAll(regex.regexNumber, " ")
-      .replaceAll(regex.regexRepetition, " " + specificWords.REPETITION + " ")))
+      .replaceAll(regex.regexRepetition, " " + specificWords.REPETITION + " ")
   }
 
   def listOfWordsF(targetSet: List[(Int, String)]): List[String] = {
@@ -213,7 +213,7 @@ class ProcessData {
    * @param targetSet
    * @return
    */
-  def makeTFMatrix(targetSet: List[(Int, String)]): DenseMatrix[Double] = {
+  def makeTFMatrix(targetSet: List[(Int, String)],listOfWordsPath : String): DenseMatrix[Double] = {
     /**
      * List of sentences from target set, without empty strings
      */
@@ -226,7 +226,7 @@ class ProcessData {
      * Converted words into a map pointing to 0
      */
     val mappedLisfOfWords: Map[String, Double] = listOfWords.map(x => x -> 0.0).toMap
-    saveToFile(fileName.fileListOfWords, mappedLisfOfWords.keys.toList)
+    saveToFile(listOfWordsPath, mappedLisfOfWords.keys.toList)
     /**
      * Every words is atributted the value of converted sentence into a map
      * Where each vector maps the proportion of the words presented in a specific sentence(Term Frequency)
@@ -393,7 +393,7 @@ class ProcessData {
    */
   def decisionTree(categorizePositionsE: DenseVector[Int], listOfCVintersected: List[List[String]], specificKeywords: List[String]): DenseVector[Int] = {
     val categorizedWithList = categorizePositionsE.data.zip(listOfCVintersected)
-    val stemmedSpecificKeywords = applyStemmer(specificKeywords)
+    val stemmedSpecificKeywords = specificKeywords.map(applyStemmer(_))
     val newCategorization = categorizedWithList.map(x => if (x._1 == threshV.categorizeHam && containsString(x._2, stemmedSpecificKeywords)) threshV.categorizeSpam else x._1)
     DenseVector(newCategorization)
   }
@@ -406,7 +406,7 @@ class ProcessData {
    * @return
    */
   def containsMoreString(thresh: Int, targetString: List[String], specificKeywords: List[String]): Boolean = {
-    val stemmedSpecificKeywords = applyStemmer(specificKeywords)
+    val stemmedSpecificKeywords = specificKeywords.map(applyStemmer(_))
     targetString.intersect(stemmedSpecificKeywords).length >= thresh
   }
 
@@ -418,7 +418,7 @@ class ProcessData {
    * @return
    */
   def containsLessString(thresh: Int, targetString: List[String], specificKeywords: List[String]): Boolean = {
-    val stemmedSpecificKeywords = applyStemmer(specificKeywords)
+    val stemmedSpecificKeywords = specificKeywords.map(applyStemmer(_))
     targetString.intersect(stemmedSpecificKeywords).length <= thresh
   }
 }

@@ -5,7 +5,7 @@ import DefinedValues.ThresholdValues
 import ProcessingInformation.{ ProcessData, ProcessSet }
 import breeze.linalg.{ *, DenseMatrix, DenseVector, argmin, min }
 
-class EuclideanTree(TFIDFMatrixCV: DenseMatrix[Double], convertedMatrix: DenseMatrix[Double], listOfCVintersected: List[List[String]], trainingSet: ProcessSet) {
+class EuclideanTree(TFIDFMatrixCV: DenseMatrix[Double], convertedMatrix: DenseMatrix[Double], listOfCVintersected: List[List[String]], set: ProcessSet) {
 
   val dataProcess = new ProcessData()
   val specificWords = new SpecificWords()
@@ -14,7 +14,8 @@ class EuclideanTree(TFIDFMatrixCV: DenseMatrix[Double], convertedMatrix: DenseMa
   /**
     * Apply stemmer to the specific spam words considered
     */
-  val specificKeywords = dataProcess.applyStemmer(specificWords.commonSpamWords)
+  val specificKeywords = specificWords.commonSpamWords.map(dataProcess.applyStemmer(_))
+
 
   /**
     * Matrix that calculates the euclidean distances between the vectors (collumns) of the TFIDF matrix and the
@@ -28,7 +29,7 @@ class EuclideanTree(TFIDFMatrixCV: DenseMatrix[Double], convertedMatrix: DenseMa
   /**
     * Creates a list of integers with the length of each message after being processed
     */
-  val cvLength = dataProcess.countLength(trainingSet.setStopWords).map(x => x._2)
+  val cvLength = set.setProcessString.map(x=>dataProcess.countLength(x._2))
 
   /**
     * Tree node that takes into account the euclidean value and the length of each message
@@ -36,7 +37,7 @@ class EuclideanTree(TFIDFMatrixCV: DenseMatrix[Double], convertedMatrix: DenseMa
     */
   val categorizePositionsE = DenseVector((0 until valuesE.length).map(i =>
     if ((valuesE.data(i) > 0.60 && (cvLength.drop(i).head < 8)) || cvLength.drop(i).head < 2) 0
-    else trainingSet.setVector.data(positionsE.data(i))).toArray)
+    else set.setVector.data(positionsE.data(i))).toArray)
 
   /**
     * Function that categorizate the final values (0 or 1) for each string/message

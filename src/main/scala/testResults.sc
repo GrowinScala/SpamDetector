@@ -28,7 +28,7 @@ val TFmatrix = dataProcess.makeTFMatrix(trainingSet.setStopWords)
 /**
   * Creates TFIDF matrix through TF matrix
   */
-val TFIDFMatrix = dataProcess.makeTFIDFMatrix(TFmatrix)
+val TFIDFMatrix = dataProcess.makeTFIDFMatrix(TFmatrix,file.fileListOfWords)
 /**
   * Saves in csv file the matrix TFIDF
   */
@@ -36,8 +36,8 @@ dataProcess.saveToFile(fileName.fileMatrixTFIDF, TFIDFMatrix)
 */
 
 /**
- * Read the matrix created in advance and save it in a function
- */
+  * Read the matrix created in advance and save it in a function
+  */
 val TFIDFMatrixCV = dataProcess.readMatrixFromFile(fileName.fileMatrixTFIDF)
 
 /**
@@ -51,12 +51,12 @@ val crossValidationSet = new ProcessSet(fileName.fileStopWords, fileName.fileCro
  * Input: (ham,"When did you get to the library")
  * Output: (0,librari)
  */
-val cvSetStopWords = crossValidationSet.setStopWords
+val cvSetStopWords = crossValidationSet.setProcessString
 
 /**
  * Applying the stemmer function to some specific words that strongly indicate spam messages
  */
-val specificKeywords = dataProcess.applyStemmer(specificWords.commonSpamWords)
+val specificKeywords = specificWords.commonSpamWords.map(dataProcess.applyStemmer(_))
 
 /**
  * Function that applies a decision tree through several features
@@ -64,7 +64,7 @@ val specificKeywords = dataProcess.applyStemmer(specificWords.commonSpamWords)
  */
 val decisionT = DenseVector(cvSetStopWords.map(x => new DecisionTree(
   x._2,
-  dataProcess.applyStemmer(specificKeywords)
+  specificKeywords.map(dataProcess.applyStemmer(_))
 ).decisionTreeTargetString).toArray)
 
 /**
@@ -146,7 +146,16 @@ println("FINAL METRICS")
  * (False Positive, False Negative, True Positive, True Negative,
  * Accuracy, Precision, Recall, F1-Score)
  */
-dataProcess.evaluationMetrics(crossValidationSet.setVector, trueCategorization)
+ dataProcess.evaluationMetrics(crossValidationSet.setVector, trueCategorization)
+
+
+  /**
+  * Only used for the API response
+  */
+val convertToResponse = trueCategorization(0) match {
+  case 0  => "not spam"
+  case 1 => "spam"
+}
 
 /**
  * Running time in seconds

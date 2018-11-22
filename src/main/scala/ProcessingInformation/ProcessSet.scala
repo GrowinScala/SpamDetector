@@ -15,7 +15,8 @@ class ProcessSet(stopWordsFileName: String, targetSetFileName: String) {
   /**
     * Apply stemmer to the list of stop Words and take the common words
     */
-  val stemmedStopWords = dataProcess.applyStemmer(stopWordsList).distinct
+  val stemmedStopWords = stopWordsList.map(x=>dataProcess.applyStemmer(x)).distinct
+
   /**
     * Apply parse function to every string of the targetSetFile name
     * Example:
@@ -36,14 +37,22 @@ class ProcessSet(stopWordsFileName: String, targetSetFileName: String) {
     * - Remove some worthless words (articles, determinants, pronouns, ...
     * )
     */
-  val setLower = dataProcess.uppertoLower(setParsed)
-  val replacedSet = dataProcess.replaceOverall(setLower)
-  val setPonctuation = dataProcess.takePunctuation(replacedSet)
-  val stemmedSet = setPonctuation.map(x => x._1)
-    .zip(dataProcess.applyStemmer(setPonctuation.map(x => x._2)))
-  val setStopWords = dataProcess.takeStopWords(stemmedStopWords, stemmedSet)
+
+    def processString(SMS:String):String={
+      val setLower = dataProcess.uppertoLower(SMS)
+      val replacedSet = dataProcess.replaceOverall(setLower)
+      val setPonctuation = dataProcess.takePunctuation(replacedSet)
+      val stemmedSet = dataProcess.applyStemmer(setPonctuation)
+      val setStopWords = dataProcess.takeStopWords(stemmedStopWords, stemmedSet)
+      setStopWords
+    }
+
+  val setProcessString = setParsed.map(x=> (x._1, processString(x._2)))
+
+
+
   /**
     * Counts the number of words of every message, after all the changes creating a List of integers
     */
-  val setLength = dataProcess.countLength(setStopWords).map(x => x._2)
+  val setLength = setProcessString.map(x => (x._1, dataProcess.countLength(x._2)))
 }

@@ -5,13 +5,13 @@ import DefinedValues.ThresholdValues
 import ProcessingInformation.{ ProcessData, ProcessSet }
 import breeze.linalg.{ *, DenseMatrix, DenseVector, argmax, max }
 
-class CosineTree(TFIDFMatrixCV: DenseMatrix[Double], convertedMatrix: DenseMatrix[Double], listOfCVintersected: List[List[String]], trainingSet: ProcessSet) {
+class CosineTree(TFIDFMatrixCV: DenseMatrix[Double], convertedMatrix: DenseMatrix[Double], listOfCVintersected: List[List[String]], set: ProcessSet) {
 
   val dataProcess = new ProcessData()
   val specificWords = new SpecificWords()
   val threshV = new ThresholdValues()
 
-  val specificKeywords = dataProcess.applyStemmer(specificWords.commonSpamWords)
+  val specificKeywords = specificWords.commonSpamWords.map(dataProcess.applyStemmer(_))
 
   /**
     * This function will calculate the cosine similarity between the convertedMatrix and TFIDF Matrix
@@ -26,8 +26,8 @@ class CosineTree(TFIDFMatrixCV: DenseMatrix[Double], convertedMatrix: DenseMatri
     */
   val positionsC: DenseVector[Int] = cosineMatrix(*, ::).map(row => argmax(row))
   val valuesC: DenseVector[Double] = cosineMatrix(*, ::).map(row => max(row))
-  val cvLength = dataProcess.countLength(trainingSet.setStopWords).map(x => x._2)
-  val categorizePositionsC = positionsC.map(x => trainingSet.setVector(x))
+  val cvLength = set.setProcessString.map(x=>dataProcess.countLength(x._2))
+  val categorizePositionsC = positionsC.map(x => set.setVector(x))
 
   /**
     * Tree node that takes into account the cosine value and the number of specific words that a message contains,
