@@ -15,12 +15,12 @@ class Main(SMS: String) {
   /**
    * Class that processes data set
    */
-  val allSetProcessed = new ProcessSet(fileName.fileStopWords, fileName.fileTrainingSet)
+  val allSetProcessed = new ProcessSet(fileName.fileStopWords, fileName.fileAllSet)
 
   /**
    * Creates matrix TF
    */
-  val TFmatrix = dataProcess.makeTFMatrix(allSetProcessed.setProcessString,fileName.fileListOfWords)
+  val TFmatrix = dataProcess.makeTFMatrix(allSetProcessed.setProcessString,fileName.dataSetfileListOfWords)
   /**
    * Creates TFIDF matrix through TF matrix
    */
@@ -33,7 +33,7 @@ class Main(SMS: String) {
   /**
    * Read the matrix created in advance and save it in a function
    */
-  val dataSetTFIDFMatrixCV = dataProcess.readMatrixFromFile(fileName.fileMatrixTFIDF)
+  val dataSetTFIDFMatrixCV = dataProcess.readMatrixFromFile(fileName.dataSetfileMatrixTFIDF)
 
   /**
     * Process target SMS
@@ -60,7 +60,7 @@ class Main(SMS: String) {
   /**
     * Read list of words that were achieved in the training set data after filtered
     */
-  val listOfWords = dataProcess.readListFromFile(fileName.fileListOfWords)
+  val listOfWords = dataProcess.readListFromFile(fileName.dataSetfileListOfWords)
 
   /**
     * Maps each word with the value 0
