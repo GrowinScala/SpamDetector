@@ -3,6 +3,8 @@ import DefinedStrings.{FilesName, SpecificWords}
 import ProcessingInformation.{ProcessData, ProcessSet}
 import breeze.linalg._
 
+object TrainMLAlgorithm {
+
   /**
     * Set timer
     */
@@ -162,3 +164,5 @@ dataProcess.saveToFile(fileName.fileMatrixTFIDF, TFIDFMatrix)
     */
   val finalTime = System.currentTimeMillis
   val timeRunning = (finalTime - inicialTime).toDouble / 1000 + " seconds"
+
+}

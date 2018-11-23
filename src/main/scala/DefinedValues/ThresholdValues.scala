@@ -21,4 +21,5 @@ class ThresholdValues {
   val sixParts = 6
   val eightParts = 8
   val zeroParts = 0
+  val maxCharNumber = 918
 }

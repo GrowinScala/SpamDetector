@@ -66,7 +66,7 @@ class Main(SMS: String) {
   val listOfWords = dataProcess.readListFromFile(fileName.dataSetfileListOfWords)
 
   /**
-    * Maps each word with the value 0
+    * Maps each word with the value 0.0
     */
   val mappedLisfOfWords: Map[String, Double] = listOfWords.map(x => x -> 0.0).toMap
 
@@ -101,7 +101,6 @@ class Main(SMS: String) {
   /**
     * Matching the three trees calculated applying Random Forest "algorithm"
     */
-    println(cosineTree.finalCategorizationC,euclideanTree.finalCategorizationE,decisionT)
   val trueCategorization = (cosineTree.finalCategorizationC + euclideanTree.finalCategorizationE + decisionT).map(
     {
       case 0 => 0
