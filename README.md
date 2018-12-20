@@ -2,7 +2,7 @@
 
 SpamDetector is an open-source service written in Scala developed by the good people at Growin.
 
-* It was constructed in word to detect either if a SMS text written in English is Spam or not: 
+* It was constructed in order to detect either if a SMS text written in English is Spam or not: 
  
  Current version: 0.1
 
